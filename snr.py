@@ -2,6 +2,12 @@ std_l = 20
 
 
 def check_seq(f):
+    """
+    Auxiliary method which checks inputs to Seq methods
+
+    :param f: the function to be decorated
+    :return: the decorated function
+    """
     def wrapper(self, o=None):
         if o is None:
             return f(self, None)
@@ -27,6 +33,13 @@ def check_seq(f):
 
 
 def check_sig(f):
+    """
+        Auxiliary method which checks inputs to Sig methods
+
+        :param f: the function to be decorated
+        :return: the decorated function
+        """
+
     def wrapper(self, o):
         if o is None:
             return f(self, Sig(Seq()))
