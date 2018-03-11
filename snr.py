@@ -404,4 +404,3 @@ class Sig:
     def neg(self):
         out = [-k for k in self]
         return Seq(out)
-
