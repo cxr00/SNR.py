@@ -1,3 +1,6 @@
+import copy
+from math import ceil
+
 std_l = 20
 
 
@@ -18,7 +21,7 @@ def check_seq(f):
             for e in o:
                 if not isinstance(e, (int, float)):
                     raise ValueError(f"Unsupported type {type(o)}")
-            return f(self, o)
+            return f(self, Seq(o))
             # except Exception as e:  # could be way better
             #     print(e)
         elif isinstance(o, Seq):
@@ -46,13 +49,13 @@ def check_sig(f):
         elif isinstance(o, (int, float)):
             return f(self, Sig(Seq([o])))
         elif isinstance(o, list):
-            try:
-                for e in o:
-                    if not isinstance(e, (int, float)):
-                        raise ValueError(f"Unsupported type {type(o)}")
-                return f(self, Sig(Seq(o)))
-            except Exception as e:  # could be way better
-                print(e)
+            # try:
+            for e in o:
+                if not isinstance(e, (int, float)):
+                    raise ValueError(f"Unsupported type {type(e)}")
+            return f(self, Sig(Seq(o)))
+            # except Exception as e:  # could be way better
+            #     print(e)
         elif isinstance(o, Seq):
             return f(self, Sig(o))
         elif isinstance(o, Sig):
@@ -100,7 +103,7 @@ class Seq:
 
     @check_seq
     def __ge__(self, o):
-        return all(self[k] >= o[k] for k in range(max(len(self), len(o))))
+        return self.val >= o.val
 
     def __getitem__(self, i):
         if isinstance(i, int):
@@ -113,7 +116,7 @@ class Seq:
 
     @check_seq
     def __gt__(self, o):
-        return all(self[k] > o[k] for k in range(max(len(self), len(o))))
+        return self.val > o.val
 
     @check_seq
     def __iadd__(self, o):
@@ -132,7 +135,7 @@ class Seq:
 
     @check_seq
     def __le__(self, o):
-        return all(self[k] <= o[k] for k in range(max(len(self), len(o))))
+        return self.val <= o.val
 
     def __len__(self):
         if len(self.val) == 1 and self.val[0] == 0:
@@ -141,7 +144,7 @@ class Seq:
 
     @check_seq
     def __lt__(self, o):
-        return all(self[k] < o[k] for k in range(max(len(self), len(o))))
+        return self.val < o.val
 
     @check_seq
     def __mul__(self, o):
@@ -173,19 +176,23 @@ class Seq:
     def __rsub__(self, o):
         return self.neg() + o
 
+    def __setitem__(self, key: int, value: (int, float)):
+        self.val[key] = value
+
     @check_seq
     def __sub__(self, o):
         return self + o.neg()
 
     def __str__(self):
-        return str(self.val)
+        return str(self.trim().val)
 
     def __truediv__(self, o):
         r = Seq(self[0]/o[0])
         l = max(len(self), len(o))
-        r.extend([(self[x] - sum(r[k] * o[x-k] for k in range(x))) / o[0] for x in range(l)])
+        for x in range(1, l):
+            r.append((self[x] - sum(r[k] * o[x-k] for k in range(x))) / o[0])
         r = ([int(x) if int(x) == x else x for x in r])
-        return r
+        return Seq(r)
 
     def append(self, v: (int, float)):
         self.val.append(v)
@@ -203,7 +210,7 @@ class Seq:
             r.append(n)
         return r
 
-    def inv_f(self):
+    def i(self):
         if self[0] != 1:
             raise ValueError("non-invertible: arg d must begin with 1")
         r = Seq([self[1]])
@@ -215,9 +222,9 @@ class Seq:
         return r
 
     def last_inv_f(self):
-        out = self.inv_f()
+        out = self.i()
         while out[0] == 1:
-            out = out.inv_f()
+            out = out.i()
         return out
 
     def matches(self, o):
@@ -225,6 +232,14 @@ class Seq:
 
     def neg(self):
         out = [-k for k in self]
+        return Seq(out)
+
+    def trim(self):
+        out = copy.deepcopy(self.val)
+        while out[-1] == 0 and len(out) > 0:
+            out.pop(-1)
+            if len(out) == 0:
+                break
         return Seq(out)
 
 
@@ -393,7 +408,7 @@ class Sig:
         return Sig(self.val.f(l=l))
 
     def inv_f(self):
-        return Sig(self.val.inv_f())
+        return Sig(self.val.i())
 
     def last_inv_f(self):
         return Sig(self.val.last_inv_f())
@@ -403,4 +418,106 @@ class Sig:
 
     def neg(self):
         out = [-k for k in self]
+        return Sig(out)
+
+
+class Block:
+
+    @staticmethod
+    def blank(l=std_l):
+        return Block([Seq([0 for k in range(l)]) for x in range(l)], manual=True)
+
+    @staticmethod
+    def sen(d: Seq, l=std_l):
+        out = [Seq([1])[:l]]
+        for x in range(1, l):
+            to_add = []
+            for y in range(l):
+                to_add.append(sum([d[i] for i in range(x-y)]))
+            out.append(Seq(to_add))
+        return Block(out, manual=True)
+
+    @staticmethod
+    def sieve(d: Seq, l=std_l):
+        get_from = Block(d, l)
+        out = []
+        step = len(d)-1
+        for s in get_from.val[:l]:
+            out.append(Seq([k for k in s[::step]]))
+        t_l = len(out[-1].trim()) - 1
+        for k in range(t_l):
+            t = t_l - k
+            out.append(Seq([k for k in get_from[k+l][::step]])[:t])
+        return Block(out, manual=True)
+
+    def __init__(self, val=None, l=std_l, manual=False):
+        if manual:
+            self.l = l
+            self.L = max([len(k) for k in val])
+            self.val = val
+        else:
+            self.l = l
+            self.L = (len(val)+1)*l
+            self.val = [Seq(1)]
+            if val is None:
+                self.val.append(Seq([0]))
+            elif isinstance(val, (int, float)):
+                self.val.append(Seq([int(val) if int(val) == val else val]))
+            elif isinstance(val, list):
+                self.val.append(Seq([int(v) if int(v) == v else v for v in val]))
+            elif isinstance(val, Seq):
+                self.val.append(val)
+            elif isinstance(val, Sig):
+                self.val.append(val.val)
+            else:
+                raise ValueError(f"Unsupported type {type(val)}")
+            for k in range(l-1):
+                self.val.append((val[:ceil(self.L/2)]*self.val[-1][:ceil(self.L/2)])[:self.L])
+            t_l = len(self.val[-1].trim())-1
+            for k in range(t_l):
+                t = t_l - k
+                self.val.append((val*self.val[-1])[:t])
+            self.l += self.L
+
+    def __getitem__(self, i):
+        return self.val[i] if len(self) > i >= 0 else Seq(0)
+
+    def __iter__(self):
+        return iter(self.val)
+
+    def __len__(self):
+        return len(self.val)
+
+    def __mul__(self, other):
+        out = Block([Seq([0 for k in range(self.L)]) for x in range(self.L)], manual=True)
+        for x in range(self.L):
+            for y in range(self.L):
+                out.val[x][y] = sum([self.val[x][k] * other.val[k][y] for k in range(self.L)])
+        return out
+
+    def __str__(self):
+        out = ""
+        for e in self:
+            out += str(e) + "\n"
+        return out
+
+    def f(self, transpose=True):
+        out = []
+        for e in self.transpose() if transpose else self:
+            out.append(sum(e))
         return Seq(out)
+
+    def inv_transpose(self):
+        L = len(self)
+        out = Block.blank(L)
+        for x in range(L):
+            for k in range(L):
+                out[x][k] = self[x+k][x]
+        return out
+
+    def transpose(self):
+        out = Block.blank(len(self))
+        for x in range(len(self.val)):
+            for k in range(x+1):
+                out[x][k] = self[k][x-k]
+        return out
