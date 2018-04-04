@@ -214,7 +214,7 @@ class Seq:
         if self[0] != 1:
             raise ValueError("non-invertible: arg d must begin with 1")
         r = Seq([self[1]])
-        for x in range(2, len(self)):
+        for x in range(2, len(self)-1):
             n = self[x]
             for k in range(1, x):
                 n -= r[k-1] * self[x-k]
@@ -425,7 +425,31 @@ class Block:
 
     @staticmethod
     def blank(l=std_l):
-        return Block([Seq([0 for k in range(l)]) for x in range(l)], manual=True)
+        return Block([Seq([0 for k in range(l)]) for x in range(l)])
+
+    @staticmethod
+    def cantor(d, l):
+        s_d = Block.sen(d, l)
+        out = [Seq(1), Seq([k[0] for k in s_d])]
+        g = s_d
+        for k in range(1, l):
+            g *= s_d
+            out.append(Seq([k[0] for k in g]))
+        return Block(out)
+
+    @staticmethod
+    def power(d, l=std_l):
+        d = d if isinstance(d, Seq) else Seq(d)
+        L = (len(d) + 1) * l
+        val = [Seq(1)]
+        for k in range(l-1):
+            val.append((d*val[-1])[:L])
+        t_l = len(val[-1].trim())-1
+        for k in range(t_l):
+            t = t_l - k
+            val.append((d*val[-1])[:t])
+        l += L
+        return Block(val, l, L)
 
     @staticmethod
     def sen(d: Seq, l=std_l):
@@ -435,7 +459,7 @@ class Block:
             for y in range(l):
                 to_add.append(sum([d[i] for i in range(x-y)]))
             out.append(Seq(to_add))
-        return Block(out, manual=True)
+        return Block(out)
 
     @staticmethod
     def sieve(d: Seq, l=std_l):
@@ -448,36 +472,28 @@ class Block:
         for k in range(t_l):
             t = t_l - k
             out.append(Seq([k for k in get_from[k+l][::step]])[:t])
-        return Block(out, manual=True)
+        return Block(out)
 
-    def __init__(self, val=None, l=std_l, manual=False):
-        if manual:
-            self.l = l
-            self.L = max([len(k) for k in val])
-            self.val = val
+    def __init__(self, val=None, l=std_l, L=None):
+        self.l = l
+        self.L = L if L else len(val) if isinstance(val, Seq) else max([len(k) for k in val])
+        self.val = []
+        if val is None:
+            self.val.append(Seq([0]))
+        elif isinstance(val, (int, float)):
+            self.val.append(Seq([int(val) if int(val) == val else val]))
+        elif isinstance(val, list):
+            for e in val:
+                if isinstance(e, Seq):
+                    self.val.append(e)
+                elif isinstance(e, list):
+                    self.val.append(Seq([int(v) if int(v) == v else v for v in val]))
+        elif isinstance(val, Seq):
+            self.val.append(val)
+        elif isinstance(val, Sig):
+            self.val.append(val.val)
         else:
-            self.l = l
-            self.L = (len(val)+1)*l
-            self.val = [Seq(1)]
-            if val is None:
-                self.val.append(Seq([0]))
-            elif isinstance(val, (int, float)):
-                self.val.append(Seq([int(val) if int(val) == val else val]))
-            elif isinstance(val, list):
-                self.val.append(Seq([int(v) if int(v) == v else v for v in val]))
-            elif isinstance(val, Seq):
-                self.val.append(val)
-            elif isinstance(val, Sig):
-                self.val.append(val.val)
-            else:
-                raise ValueError(f"Unsupported type {type(val)}")
-            for k in range(l-1):
-                self.val.append((val[:ceil(self.L/2)]*self.val[-1][:ceil(self.L/2)])[:self.L])
-            t_l = len(self.val[-1].trim())-1
-            for k in range(t_l):
-                t = t_l - k
-                self.val.append((val*self.val[-1])[:t])
-            self.l += self.L
+            raise ValueError(f"Unsupported type {type(val)}")
 
     def __getitem__(self, i):
         return self.val[i] if len(self) > i >= 0 else Seq(0)
@@ -489,7 +505,7 @@ class Block:
         return len(self.val)
 
     def __mul__(self, other):
-        out = Block([Seq([0 for k in range(self.L)]) for x in range(self.L)], manual=True)
+        out = Block([Seq([0 for k in range(self.L)]) for x in range(self.L)])
         for x in range(self.L):
             for y in range(self.L):
                 out.val[x][y] = sum([self.val[x][k] * other.val[k][y] for k in range(self.L)])
