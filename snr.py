@@ -15,7 +15,7 @@ def check_seq(f):
         if o is None:
             return f(self, None)
         elif isinstance(o, (int, float)):
-            return f(self, [o])
+            return f(self, Seq([o]))
         elif isinstance(o, list):
             # try:
             for e in o:
@@ -28,6 +28,8 @@ def check_seq(f):
             return f(self, o)
         elif isinstance(o, Sig):
             return f(self, o.val)
+        elif isinstance(o, Block):
+            return f(self, o)
         else:
             raise ValueError(f"Unsupported type {type(o)}")
 
@@ -68,12 +70,22 @@ def check_sig(f):
 
 class Seq:
 
+    @staticmethod
+    def psum(d):
+        return Seq([sum([d[k] for k in range(x+1)]) for x in range(len(d))])
+
+    @staticmethod
+    def unsum(d):
+        out = d*Seq([1, -1])
+        l = len(out)
+        return out[:l-1]
+
     def __init__(self, val=None):
         if val is None:
             self.val = []
         elif isinstance(val, (int, float)):
             self.val = [int(val) if int(val) == val else val]
-        elif isinstance(val, list):
+        elif isinstance(val, (list, tuple)):
             self.val = [int(v) if int(v) == v else v for v in val]
         elif isinstance(val, Seq):
             self.val = val.val
@@ -146,12 +158,20 @@ class Seq:
     def __lt__(self, o):
         return self.val < o.val
 
+    def __mod__(self, o):
+        if isinstance(o, int):
+            return Seq([k % o for k in self])
+        elif isinstance(o, Seq):
+            return Seq([self[k] % o[k] for k in range(min(len(self), len(o)))])
+
     @check_seq
     def __mul__(self, o):
         l = len(self) + len(o) - 1
         if isinstance(o, Seq):
             r = [sum(self[k] * o[x - k] for k in range(x + 1)) for x in range(l)]
             return Seq(r)
+        elif isinstance(o, Block):
+            return o * self
         else:
             n = Seq(o)
             r = [sum(self[k] * n[x - k] for k in range(x + 1)) for x in range(l)]
@@ -170,6 +190,8 @@ class Seq:
 
     @check_seq
     def __rmul__(self, o):
+        if isinstance(o, Block):
+            return o * self
         return self * o
 
     @check_seq
@@ -177,7 +199,8 @@ class Seq:
         return self.neg() + o
 
     def __setitem__(self, key: int, value: (int, float)):
-        self.val[key] = value
+        if len(self) > key >= 0:
+            self.val[key] = value
 
     @check_seq
     def __sub__(self, o):
@@ -214,7 +237,7 @@ class Seq:
         if self[0] != 1:
             raise ValueError("non-invertible: arg d must begin with 1")
         r = Seq([self[1]])
-        for x in range(2, len(self)-1):
+        for x in range(2, len(self)):
             n = self[x]
             for k in range(1, x):
                 n -= r[k-1] * self[x-k]
@@ -233,6 +256,9 @@ class Seq:
     def neg(self):
         out = [-k for k in self]
         return Seq(out)
+
+    def s(self):
+        return Sig(self)
 
     def trim(self):
         out = copy.deepcopy(self.val)
@@ -428,8 +454,8 @@ class Block:
         return Block([Seq([0 for k in range(l)]) for x in range(l)])
 
     @staticmethod
-    def cantor(d, l):
-        s_d = Block.sen(d, l)
+    def cantor(d, l=std_l, sen=True):
+        s_d = Block.sen(d, l) if sen else d
         out = [Seq(1), Seq([k[0] for k in s_d])]
         g = s_d
         for k in range(1, l):
@@ -438,17 +464,18 @@ class Block:
         return Block(out)
 
     @staticmethod
-    def power(d, l=std_l):
+    def power(d, l=std_l, taper=True, flat=False):
         d = d if isinstance(d, Seq) else Seq(d)
-        L = (len(d) + 1) * l
+        L = len(d) if flat else (len(d) + 1) * l
         val = [Seq(1)]
         for k in range(l-1):
             val.append((d*val[-1])[:L])
-        t_l = len(val[-1].trim())-1
-        for k in range(t_l):
-            t = t_l - k
-            val.append((d*val[-1])[:t])
-        l += L
+        if taper:
+            t_l = len(val[-1].trim())-1
+            for k in range(t_l):
+                t = t_l - k
+                val.append((d*val[-1])[:t])
+            l += L
         return Block(val, l, L)
 
     @staticmethod
@@ -457,21 +484,17 @@ class Block:
         for x in range(1, l):
             to_add = []
             for y in range(l):
-                to_add.append(sum([d[i] for i in range(x-y)]))
+                to_add.append(d[x-y-1])
             out.append(Seq(to_add))
         return Block(out)
 
     @staticmethod
     def sieve(d: Seq, l=std_l):
-        get_from = Block(d, l)
+        get_from = Block.power(d, l, taper=False)
         out = []
         step = len(d)-1
         for s in get_from.val[:l]:
             out.append(Seq([k for k in s[::step]]))
-        t_l = len(out[-1].trim()) - 1
-        for k in range(t_l):
-            t = t_l - k
-            out.append(Seq([k for k in get_from[k+l][::step]])[:t])
         return Block(out)
 
     def __init__(self, val=None, l=std_l, L=None):
@@ -495,8 +518,21 @@ class Block:
         else:
             raise ValueError(f"Unsupported type {type(val)}")
 
+    def __add__(self, other):
+        out = Block([Seq([0 for k in range(self.L)]) for x in range(self.L)])
+        for x in range(self.L):
+            for y in range(self.L):
+                out[x][y] = self[x][y] + other[x][y]
+        return out
+
     def __getitem__(self, i):
-        return self.val[i] if len(self) > i >= 0 else Seq(0)
+        if isinstance(i, int):
+            return self.val[i] if len(self) > i >= 0 else Seq(0)
+        elif isinstance(i, slice):
+            start = i.start if i.start else 0
+            stop = i.stop if i.stop else len(self)
+            step = i.step if i.step else 1
+            return Block([self.val[k] if len(self) > k >= 0 else 0 for k in range(start, stop, step)])
 
     def __iter__(self):
         return iter(self.val)
@@ -505,11 +541,23 @@ class Block:
         return len(self.val)
 
     def __mul__(self, other):
-        out = Block([Seq([0 for k in range(self.L)]) for x in range(self.L)])
-        for x in range(self.L):
-            for y in range(self.L):
-                out.val[x][y] = sum([self.val[x][k] * other.val[k][y] for k in range(self.L)])
+        if isinstance(other, Seq):
+            return Block([other*g for g in self])
+        if isinstance(other, Block):
+            out = Block([Seq([0 for k in range(max(self.L, other.L))]) for x in range(max(self.l, other.l))])
+            for x in range(self.L):
+                for y in range(self.L):
+                    out[x][y] = sum([self[x][k] * other[k][y] for k in range(self.L)])
+            return out
+
+    def __pow__(self, power, modulo=None):
+        out = Block(list(self.val))
+        for k in range(power):
+            out = out.convolve(self) if modulo else out * self
         return out
+
+    def __rmul__(self, other):
+        return self * other
 
     def __str__(self):
         out = ""
@@ -517,11 +565,36 @@ class Block:
             out += str(e) + "\n"
         return out
 
+    def __sub__(self, other):
+        out = Block([Seq([0 for k in range(self.L)]) for x in range(self.L)])
+        for x in range(self.L):
+            for y in range(self.L):
+                out[x][y] = self[x][y] - other[x][y]
+        return out
+
+    def append(self, line: Seq):
+        self.val.append(line)
+
+    @staticmethod
+    def convolve(a, b):
+        if isinstance(b, Block):
+            out = []
+            for x in range(len(a)):
+                n = sum([a[k] * b[x - k] for k in range(x + 1)])
+                out.append(n)
+            return Block(out)
+
+    def diagonal(self):
+        return Seq([self[x][x] for x in range(len(self))])
+
     def f(self, transpose=True):
         out = []
         for e in self.transpose() if transpose else self:
             out.append(sum(e))
         return Seq(out)
+
+    def i(self, transpose=True):
+        return self.f(transpose).i()
 
     def inv_transpose(self):
         L = len(self)
@@ -530,6 +603,10 @@ class Block:
             for k in range(L):
                 out[x][k] = self[x+k][x]
         return out
+
+    def nabla(self, o: Seq):
+        of = o.f()
+        return Seq([sum([self[k][x-k]*of[k] for k in range(x+1)]) for x in range(len(self))])
 
     def transpose(self):
         out = Block.blank(len(self))
