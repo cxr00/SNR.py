@@ -267,8 +267,8 @@ class Seq:
 
     def trim(self):
         out = copy.deepcopy(self.val)
-        while len(out) > 0 and out[-1] == 0:
-            out.pop(-1)
+        while out[len(out)-1] == 0 and len(out) > 0:
+            out.pop(len(out)-1)
             if len(out) == 0:
                 break
         return Seq(out)
