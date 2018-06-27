@@ -207,7 +207,7 @@ class Seq:
         return self + o.neg()
 
     def __str__(self):
-        return str(self.trim().val)
+        return ", ".join([str(n) for n in self.trim().val])
 
     def __truediv__(self, o):
         r = Seq(self[0]/o[0])
@@ -224,14 +224,19 @@ class Seq:
     def extend(self, o):
         self.val.extend(o)
 
-    def f(self, l=std_l):
+    def f(self, l=std_l, iter=-1):
+        if iter == 0:
+            return self
         r = Seq([1])
         for x in range(1, l):
             n = 0
             for k in range(len(self)):
                 n += self[k] * r[x-k-1]
             r.append(n)
-        return r
+        if iter > 1:
+            return r.f(l, iter-1)
+        else:
+            return r
 
     def i(self):
         if self[0] != 1:
@@ -262,7 +267,7 @@ class Seq:
 
     def trim(self):
         out = copy.deepcopy(self.val)
-        while out[-1] == 0 and len(out) > 0:
+        while len(out) > 0 and out[-1] == 0:
             out.pop(-1)
             if len(out) == 0:
                 break
@@ -406,7 +411,7 @@ class Sig:
         return Sig((self.val - o.val) * o.f())
 
     def __str__(self):
-        return str(self.val)
+        return ", ".join([str(n) for n in self.val])
 
     @check_sig
     def __truediv__(self, a):
@@ -614,3 +619,4 @@ class Block:
             for k in range(x+1):
                 out[x][k] = self[k][x-k]
         return out
+
