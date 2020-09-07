@@ -1,3 +1,7 @@
+"""
+Miscellaneous efforts at constructing alternate g-matrices.
+Nothing particularly interesting about their signatures however.
+"""
 from snr import *
 from playground.snr_diagonal import diagonal_sum
 from playground.snr_column import first_column_sum
@@ -5,6 +9,7 @@ from playground.snr_column import first_column_sum
 
 # Multiplies two sen matrices
 # Noncommutative, so it checks both arrangements
+# Doesn't yield anything useful yet
 def multiply_sen_matrices():
     a = Seq([1, 1, 1])
     s_a = Block.sen(a, std_l)
@@ -100,3 +105,11 @@ def power_initial_matrix():
     print(diag_sab)
     print(diag_sab.i())
 
+
+def cantor_triangle_test():
+    a = Seq([1, 1])
+    print(Block.cantor(a))
+    print(Block.cantor(a).f().i())
+
+
+cantor_triangle_test()

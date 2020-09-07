@@ -467,23 +467,6 @@ class Block:
         return Block([Seq([0 for k in range(l)]) for x in range(l)])
 
     @staticmethod
-    def cantor(d, l=std_l, sen=True):
-        s_d = Block.sen(d, l) if sen else d
-        out = [Seq(1), Seq([k[0] for k in s_d])]
-        g = s_d
-        for k in range(1, l):
-            g *= s_d
-            out.append(Seq([k[0] for k in g]))
-        return Block(out)
-
-    @staticmethod
-    def identity(l=std_l):
-        out = Block.blank(l=l)
-        for x in range(l):
-            out[x][x] = 1
-        return out
-
-    @staticmethod
     def g_matrix(s, g):
         # The matrix G_S_d^p is defined in section 5.5 of SNR
 
@@ -509,6 +492,13 @@ class Block:
             s_prev = s_next
 
         return s_next
+
+    @staticmethod
+    def identity(l=std_l):
+        out = Block.blank(l=l)
+        for x in range(l):
+            out[x][x] = 1
+        return out
 
     @staticmethod
     def power(d, l=std_l, taper=True, flat=False):

@@ -1,3 +1,8 @@
+"""
+first_column_sum is the algorithm to sum along the first column of
+a given g-matrix's powers to yield a sequence with a unique signature.
+The formula is found in 5.5 of SNR.
+"""
 from snr import *
 
 

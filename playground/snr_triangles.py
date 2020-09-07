@@ -7,7 +7,8 @@ The code for each function is basically as follows:
 2 (If applicable) Get aerated diagonal sum based on aeration coefficient a
 3 Compare to manually constructed sequence s
 
-
+The triangles given are of interest because of their elegant expression
+in terms of their signatures.
 """
 from snr import *
 
