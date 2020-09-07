@@ -27,3 +27,4 @@ def test_diagonal_sum():
 
     # Function call to compute diagonal sum
     print(diagonal_sum(s))
+    print(diagonal_sum(s).i())

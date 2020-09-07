@@ -60,8 +60,6 @@ def multiply_sen_by_power():
     print(fcs_d.i())
 
 
-multiply_sen_by_power()
-
 # Constructs a p-matrix with the signature convolution powers a^(n)
 # Doesn't yield anything interesting as of yet
 def convolution_initial_matrix():
@@ -101,5 +99,4 @@ def power_initial_matrix():
     diag_sab = diagonal_sum(b)
     print(diag_sab)
     print(diag_sab.i())
-
 

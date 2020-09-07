@@ -217,6 +217,14 @@ class Seq:
         r = ([int(x) if int(x) == x else x for x in r])
         return Seq(r)
 
+    # Transform a sequence into its aerated version
+    # Eg [1, 1] to [1, 0, 1] or [1, 1, 1] to [1, 0, 0, 1, 0, 0, 1]
+    def aerate(self, a):
+        out = Seq([0 for k in range(len(self) * a)])
+        for k in range(0, len(self) * a, a):
+            out[k] = self[k // a]
+        return out
+
     def append(self, v: (int, float)):
         self.val.append(v)
 
