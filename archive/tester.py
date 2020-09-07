@@ -150,6 +150,6 @@ u = 6
 G = Num.generate(3, up_to=u)
 
 
-s = Seq([30., 2])
+s = Seq([30, 2])
 h = Num.sieve(G, s)
 print(list(h.values())[::-1])

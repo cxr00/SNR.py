@@ -1,7 +1,7 @@
 import copy
 from math import ceil
 
-std_l = 20
+std_l = 13
 
 
 def check_seq(f):
@@ -274,7 +274,7 @@ class Seq:
         return Seq(out)
 
 
-w = Seq([0, 1])
+x = Seq([0, 1])
 
 
 class Sig:
@@ -295,7 +295,7 @@ class Sig:
 
     @check_sig
     def __add__(self, o):
-        return Sig(self.val + o.val - w * self.val * o.val)
+        return Sig(self.val + o.val - x * self.val * o.val)
 
     @check_sig
     def __contains__(self, i):
@@ -379,7 +379,7 @@ class Sig:
     def __mul__(self, o):
         out = Seq(0)
         a = self.val
-        aw = a*w
+        aw = a * x
         g = Seq(1)
         for k in range(len(o)):
             out += g * o[k]
@@ -423,7 +423,7 @@ class Sig:
         for x in range(l):
             out.append(ap[x] / bp[x])
             ap -= bp*out[x]
-            bp *= w * a
+            bp *= x * a
         while out[-1] == 0:
             out.pop(-1)
         return Sig(out)
@@ -469,6 +469,40 @@ class Block:
         return Block(out)
 
     @staticmethod
+    def identity(l=std_l):
+        out = Block.blank(l=l)
+        for x in range(l):
+            out[x][x] = 1
+        return out
+
+    @staticmethod
+    def p_matrix(s, g):
+        # The matrix G_S_d^p is defined in section 5.5 of SNR
+
+        # Generate the next matrix G_S_d^p
+        def generate_next_matrix(s_prev, g_p):
+            out = Block.blank(std_l)
+            f_g = g_p.f(std_l)
+
+            for n in range(std_l):
+                for y in range(n + 1):
+                    _sum = 0
+                    for k in range(n + 1):
+                        _sum += s_prev[k][y] * f_g[n - k]
+                    out[n][y] = _sum
+
+            return out
+
+        s_prev = s
+        s_next = None
+
+        for g_p in g:
+            s_next = generate_next_matrix(s_prev, g_p)
+            s_prev = s_next
+
+        return s_next
+
+    @staticmethod
     def power(d, l=std_l, taper=True, flat=False):
         d = d if isinstance(d, Seq) else Seq(d)
         L = len(d) if flat else (len(d) + 1) * l
@@ -486,7 +520,8 @@ class Block:
     @staticmethod
     def sen(d: Seq, l=std_l):
         out = [Seq([1])[:l]]
-        for x in range(1, l):
+        out += [Seq(d[0] - 1)]
+        for x in range(2, l):
             to_add = []
             for y in range(l):
                 to_add.append(d[x-y-1])
@@ -555,7 +590,10 @@ class Block:
                     out[x][y] = sum([self[x][k] * other[k][y] for k in range(self.L)])
             return out
 
+    # My handling of powers of blocks is problematic
     def __pow__(self, power, modulo=None):
+        if power == 0:
+            return Block.identity(len(self))
         out = Block(list(self.val))
         for k in range(power):
             out = out.convolve(self) if modulo else out * self
