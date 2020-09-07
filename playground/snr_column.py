@@ -2,7 +2,9 @@ from snr import *
 
 
 # Generate partial sums of the first column of a given Block
+# Begins by getting b**std_l to get the fully progressed matrix
 def first_column_sum(b):
+    b = b**std_l
     out = Seq([0 for k in range(std_l)])
     for k in range(std_l):
         out[k] = out[k-1] + b[k][0]
@@ -19,13 +21,10 @@ def test_column_sum():
     g = [Seq([1])]
 
     # Construct the p-matrix from 5.5
-    s_next = Block.p_matrix(s, g)
-
-    # Get the l-th power of the matrix
-    s_pow = s_next**std_l
+    s_p = Block.g_matrix(s, g)
 
     # Get the column sum for the identity
-    f_c_s = first_column_sum(s_pow).i()
+    f_c_s = first_column_sum(s_p).i()
 
     # Sequences G which convolve the matrix
     g_sig = [Sig(g_i) for g_i in g]
@@ -41,4 +40,3 @@ def test_column_sum():
     # Through 5.5 from SNR, f_c_s is equal to g_ss_seq
     print(f_c_s)
     print(g_ss_seq)
-

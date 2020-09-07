@@ -23,9 +23,7 @@ def test_diagonal_sum():
     # Initial parameters
     d = Seq([1, 1])
     g = [Seq([1])]
-    s = Block.p_matrix(Block.sen(d), g)
+    s = Block.g_matrix(Block.sen(d), g)
 
     # Function call to compute diagonal sum
     print(diagonal_sum(s))
-
-test_diagonal_sum()

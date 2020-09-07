@@ -1,7 +1,7 @@
 import copy
 from math import ceil
 
-std_l = 13
+std_l = 10
 
 
 def check_seq(f):
@@ -476,7 +476,7 @@ class Block:
         return out
 
     @staticmethod
-    def p_matrix(s, g):
+    def g_matrix(s, g):
         # The matrix G_S_d^p is defined in section 5.5 of SNR
 
         # Generate the next matrix G_S_d^p
