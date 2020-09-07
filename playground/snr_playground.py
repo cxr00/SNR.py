@@ -104,12 +104,3 @@ def power_initial_matrix():
     diag_sab = diagonal_sum(b)
     print(diag_sab)
     print(diag_sab.i())
-
-
-def cantor_triangle_test():
-    a = Seq([1, 1])
-    print(Block.cantor(a))
-    print(Block.cantor(a).f().i())
-
-
-cantor_triangle_test()
