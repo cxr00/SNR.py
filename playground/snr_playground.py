@@ -13,19 +13,20 @@ from playground.snr_column import first_column_sum
 def multiply_sen_matrices():
     a = Seq([1, 1, 1])
     s_a = Block.sen(a, std_l)
-    print(s_a)
 
     b = Seq([1, 1])
     s_b = Block.sen(b, std_l)
-    print(s_b)
 
     s_ab = s_a * s_b
 
     fcs_sab = first_column_sum(s_ab)
+    print("First column sum s_a * s_b")
     print(fcs_sab)
     print(fcs_sab.i())
+    print()
 
     diag_sab = diagonal_sum(s_ab)
+    print("Diagonal sum s_a * s_b")
     print(diag_sab)
     print(diag_sab.i())
     print()
@@ -33,10 +34,13 @@ def multiply_sen_matrices():
     s_ba = s_b * s_a
 
     fcs_sba = first_column_sum(s_ba)
+    print("First column sum s_b * s_a")
     print(fcs_sba)
     print(fcs_sba.i())
+    print()
 
     diag_sba = diagonal_sum(s_ba)
+    print("Diagonal sum s_b * s_a")
     print(diag_sba)
     print(diag_sba.i())
 
@@ -50,19 +54,35 @@ def multiply_sen_by_power():
 
     b = Seq([1, 1])
     s_b = Block([Seq([1])] + Block.power(b).val)
+    s_b[1][0] = 0
 
     c = s_a * s_b
 
     fcs_c = first_column_sum(c)
+    print("First column sum s_a * s_b")
     print(fcs_c)
     print(fcs_c.i())
+    print()
+
+    diag_c = diagonal_sum(c)
+    print("Diagonal sum s_a * s_b")
+    print(diag_c)
+    print(diag_c.i())
     print()
 
     d = s_b * s_a
 
     fcs_d = first_column_sum(d)
+    print("First column sum s_b * s_a")
     print(fcs_d)
     print(fcs_d.i())
+    print()
+
+    diag_d = diagonal_sum(d)
+    print("Diagonal sum s_b * s_a")
+    print(diag_d)
+    print(diag_d.i())
+    print()
 
 
 # Constructs a p-matrix with the signature convolution powers a^(n)
@@ -92,8 +112,7 @@ def convolution_initial_matrix():
 # When a = Seq([1, 1]) the diagonal sum is A320964
 def power_initial_matrix():
     a = Seq([1, 1])
-    b = Block([Seq(1)] + Block.power(a, taper=False).val)
-
+    b = Block([Seq([1])] + Block.power(a, taper=False).val)
     print(b)
 
     fcs_sab = first_column_sum(b)

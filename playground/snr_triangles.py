@@ -13,24 +13,13 @@ in terms of their signatures.
 from snr import *
 
 
-# Aerated summation along a block b with aeration coefficient a
-def aerated_diagonal_sum(b, a):
-    out = []
-    for n in range(len(b)):
-        _sum = 0
-        for k in range(n+1):
-            _sum += b[n-a*k][k]
-        out.append(_sum)
-    return Seq(out)
-
-
 def K_d(d, a):
     b = Block.blank(std_l)
     f_d = d.f(std_l)
     for n in range(std_l):
         for y in range(n+1):
             b[n][y] = f_d[y]
-    print(aerated_diagonal_sum(b, a))
+    print(b.f(a))
 
     s = Sig(1) + Sig((x**a) * d.aerate(a+1))
     print(s.f())
@@ -42,7 +31,7 @@ def Q_d(d, a):
     for n in range(std_l):
         for y in range(n+1):
             b[n][y] = f_d[n-y]
-    print(aerated_diagonal_sum(b, a))
+    print(b.f(a))
 
     s = Sig(d) + Sig(x**a)
     print(s.f())
@@ -54,7 +43,7 @@ def G_d(d, a):
     for n in range(std_l):
         for y in range(n+1):
             b[n][y] = (f_d**(y+1))[n-y]
-    print(aerated_diagonal_sum(b, a))
+    print(b.f(a))
 
     s = d + x**a
     print(s.f())
@@ -66,7 +55,7 @@ def B_d(d, a):
     for n in range(std_l):
         for y in range(n+1):
             b[n][y] = (f_d**(n-y+1))[y]
-    print(aerated_diagonal_sum(b, a))
+    print(b.f(a))
 
     s = Seq([1]) + (x**a)*d.aerate(a+1)
     print(s.f())
@@ -77,7 +66,7 @@ def P_d(d, a):
     for n in range(std_l):
         for y in range(n+1):
             b[n][y] = (d**y)[n-y]
-    print(aerated_diagonal_sum(b, a))
+    print(b.f(a))
 
     s = d * x**a
     print(s.f())
@@ -99,7 +88,7 @@ def J_d(d, a):
     for n in range(std_l):
         for y in range(n+1):
             b[n][y] = (d**(n-y))[y]
-    print(aerated_diagonal_sum(b, a))
+    print(b.f(a))
 
     s = d.aerate(a+1)
     print(s.f())

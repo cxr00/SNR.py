@@ -473,13 +473,13 @@ class Block:
         # Generate the next matrix G_S_d^p
         def generate_next_matrix(s_prev, g_p):
             out = Block.blank(std_l)
-            f_g = g_p.f(std_l)
+            f_g_p = g_p.f(std_l)
 
             for n in range(std_l):
                 for y in range(n + 1):
                     _sum = 0
                     for k in range(n + 1):
-                        _sum += s_prev[k][y] * f_g[n - k]
+                        _sum += s_prev[k][y] * f_g_p[n - k]
                     out[n][y] = _sum
 
             return out
@@ -524,15 +524,6 @@ class Block:
             for y in range(l):
                 to_add.append(d[x-y-1])
             out.append(Seq(to_add))
-        return Block(out)
-
-    @staticmethod
-    def sieve(d: Seq, l=std_l):
-        get_from = Block.power(d, l, taper=False)
-        out = []
-        step = len(d)-1
-        for s in get_from.val[:l]:
-            out.append(Seq([k for k in s[::step]]))
         return Block(out)
 
     def __init__(self, val=None, l=std_l, L=None):
@@ -594,7 +585,7 @@ class Block:
             return Block.identity(len(self))
         out = Block(list(self.val))
         for k in range(power):
-            out = out.convolve(self) if modulo else out * self
+            out = out * self
         return out
 
     def __rmul__(self, other):
@@ -616,34 +607,26 @@ class Block:
     def append(self, line: Seq):
         self.val.append(line)
 
-    @staticmethod
-    def convolve(a, b):
-        if isinstance(b, Block):
-            out = []
-            for x in range(len(a)):
-                n = sum([a[k] * b[x - k] for k in range(x + 1)])
-                out.append(n)
-            return Block(out)
+    # @staticmethod
+    # def convolve(a, b):
+    #     if isinstance(b, Block):
+    #         out = []
+    #         for x in range(len(a)):
+    #             n = sum([a[k] * b[x - k] for k in range(x + 1)])
+    #             out.append(n)
+    #         return Block(out)
 
-    def diagonal(self):
-        return Seq([self[x][x] for x in range(len(self))])
-
-    def f(self, transpose=True):
-        out = []
-        for e in self.transpose() if transpose else self:
-            out.append(sum(e))
-        return Seq(out)
-
-    def i(self, transpose=True):
-        return self.f(transpose).i()
-
-    def inv_transpose(self):
-        L = len(self)
-        out = Block.blank(L)
-        for x in range(L):
-            for k in range(L):
-                out[x][k] = self[x+k][x]
+    def f(self, a=1):
+        out = Seq([0 for k in range(len(self))])
+        for n in range(len(self)):
+            _sum = 0
+            for k in range(n+1):
+                _sum += self[n-a*k][k]
+            out[n] = _sum
         return out
+
+    def i(self, a=1):
+        return self.f(a).i()
 
     def nabla(self, o: Seq):
         of = o.f()
