@@ -607,15 +607,6 @@ class Block:
     def append(self, line: Seq):
         self.val.append(line)
 
-    # @staticmethod
-    # def convolve(a, b):
-    #     if isinstance(b, Block):
-    #         out = []
-    #         for x in range(len(a)):
-    #             n = sum([a[k] * b[x - k] for k in range(x + 1)])
-    #             out.append(n)
-    #         return Block(out)
-
     def f(self, a=1):
         out = Seq([0 for k in range(len(self))])
         for n in range(len(self)):
