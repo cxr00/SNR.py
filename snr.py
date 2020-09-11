@@ -1,7 +1,7 @@
 import copy
 from math import ceil
 
-std_l = 10
+std_l = 20
 
 
 def check_seq(f):
@@ -228,10 +228,6 @@ class Seq:
     def append(self, v: (int, float)):
         self.val.append(v)
 
-    @check_seq
-    def extend(self, o):
-        self.val.extend(o)
-
     def f(self, l=std_l, iter=-1):
         if iter == 0:
             return self
@@ -257,21 +253,9 @@ class Seq:
             r.append(n)
         return r
 
-    def last_inv_f(self):
-        out = self.i()
-        while out[0] == 1:
-            out = out.i()
-        return out
-
-    def matches(self, o):
-        return self in o or o in self
-
     def neg(self):
         out = [-k for k in self]
         return Seq(out)
-
-    def s(self):
-        return Sig(self)
 
     def trim(self):
         out = copy.deepcopy(self.val)
@@ -306,18 +290,8 @@ class Sig:
         return Sig(self.val + o.val - x * self.val * o.val)
 
     @check_sig
-    def __contains__(self, i):
-        return i.val in self.val
-
-    @check_sig
     def __eq__(self, o):
         return self.val == o.val
-
-    @staticmethod
-    def __extendblock__(B, v):
-        B[0].append(v)
-        for x in range(1, len(B)):
-            B[x].append(sum([B[0][-(k+1)] * B[x-1][k] for k in range(len(B[0]))]))
 
     @check_sig
     def __floordiv__(self, b):
@@ -356,18 +330,15 @@ class Sig:
 
     @check_sig
     def __iadd__(self, o):
-        self = self + o
-        return self
+        return self + o
 
     @check_sig
     def __imul__(self, o):
-        self = self * o
-        return self
+        return self * o
 
     @check_sig
     def __isub__(self, o):
-        self = self - o
-        return self
+        return self - o
 
     def __iter__(self):
         return iter(self.val)
@@ -439,21 +410,11 @@ class Sig:
     def append(self, i: (int, float)):
         self.val.append(i)
 
-    @check_sig
-    def extend(self, o):
-        self.val.extend(o.val)
-
     def f(self, l=std_l):
         return Sig(self.val.f(l=l))
 
     def inv_f(self):
         return Sig(self.val.i())
-
-    def last_inv_f(self):
-        return Sig(self.val.last_inv_f())
-
-    def matches(self, o):
-        return self in o or o in self
 
     def neg(self):
         out = [-k for k in self]
@@ -622,11 +583,3 @@ class Block:
     def nabla(self, o: Seq):
         of = o.f()
         return Seq([sum([self[k][x-k]*of[k] for k in range(x+1)]) for x in range(len(self))])
-
-    def transpose(self):
-        out = Block.blank(len(self))
-        for x in range(len(self.val)):
-            for k in range(x+1):
-                out[x][k] = self[k][x-k]
-        return out
-

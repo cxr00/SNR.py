@@ -23,6 +23,7 @@ def K_d(d, a):
 
     s = Sig(1) + Sig((x**a) * d.aerate(a+1))
     print(s.f())
+    return b
 
 
 def Q_d(d, a):
@@ -35,6 +36,7 @@ def Q_d(d, a):
 
     s = Sig(d) + Sig(x**a)
     print(s.f())
+    return b
 
 
 def G_d(d, a):
@@ -47,6 +49,7 @@ def G_d(d, a):
 
     s = d + x**a
     print(s.f())
+    return b
 
 
 def B_d(d, a):
@@ -59,6 +62,7 @@ def B_d(d, a):
 
     s = Seq([1]) + (x**a)*d.aerate(a+1)
     print(s.f())
+    return b
 
 
 def P_d(d, a):
@@ -70,17 +74,19 @@ def P_d(d, a):
 
     s = d * x**a
     print(s.f())
+    return b
 
 
-def P_prime_d(d):
+def P_prime_d(d, a=1):
     b = Block.blank(std_l)
     for n in range(std_l):
         for y in range(n+1):
             b[n][y] = (d**(y+1))[n-y]
-    print(b.f())
+    print(b.f(a))
 
-    s = d*x
+    s = d*(x**a)
     print(d*s.f())
+    return b
 
 
 def J_d(d, a):
@@ -92,15 +98,21 @@ def J_d(d, a):
 
     s = d.aerate(a+1)
     print(s.f())
+    return b
 
 
 # When d = Seq([1, 1]) then J_prime_d(n) = A000930(n+1)
-def J_prime_d(d):
+def J_prime_d(d, a):
     b = Block.blank(std_l)
     for n in range(std_l):
         for y in range(n+1):
             b[n][y] = (d**(n-y+1))[y]
-    print(b.f())
+    print(b.f(a))
 
-    s = d.aerate(2)
+    s = d.aerate(a+1)
     print(s * s.f())
+    return b
+
+
+d = Seq([1, 2, 4])
+J_prime_d(d, 1)

@@ -34,7 +34,7 @@ def test_column_sum():
     # Sequences G which convolve the matrix
     g_sig = [Sig(g_i) for g_i in g]
 
-    # Get the signature sum of all signatures
+    # Get the signature sum of all signatures in g
     g_sig_sum = 0
     for g_sig_i in g_sig:
         g_sig_sum += g_sig_i
