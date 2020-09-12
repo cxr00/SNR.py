@@ -1,6 +1,6 @@
 """
 diagonal_sum is the algorithm to sum along the diagonal of a g-matrix's powers
-to yield a sequence with a unique signature. The formula is found in 5.5
+to yield a sequence with a unique signature. The formula is found in 4.5
 of SNR.
 """
 from snr import *

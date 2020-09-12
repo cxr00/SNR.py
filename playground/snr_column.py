@@ -1,7 +1,7 @@
 """
 first_column_sum is the algorithm to sum along the first column of
 a given g-matrix's powers to yield a sequence with a unique signature.
-The formula is found in 5.5 of SNR.
+The formula is found in 4.5 of SNR.
 """
 from snr import *
 
@@ -35,7 +35,7 @@ def test_column_sum():
     g_sig = [Sig(g_i) for g_i in g]
 
     # Get the signature sum of all signatures in g
-    g_sig_sum = 0
+    g_sig_sum = Sig(0)
     for g_sig_i in g_sig:
         g_sig_sum += g_sig_i
 

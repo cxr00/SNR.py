@@ -1,5 +1,5 @@
 """
-This code is for demonstrating the identities given in 4.5
+This code is for demonstrating the identities given in 5.1
 Honestly I'm impressed that I managed to find these
 
 The code for each function is basically as follows:
@@ -112,7 +112,3 @@ def J_prime_d(d, a):
     s = d.aerate(a+1)
     print(s * s.f())
     return b
-
-
-d = Seq([1, 2, 4])
-J_prime_d(d, 1)

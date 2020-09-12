@@ -17,19 +17,14 @@ def check_seq(f):
         elif isinstance(o, (int, float)):
             return f(self, Seq([o]))
         elif isinstance(o, list):
-            # try:
             for e in o:
                 if not isinstance(e, (int, float)):
                     raise ValueError(f"Unsupported type {type(o)}")
             return f(self, Seq(o))
-            # except Exception as e:  # could be way better
-            #     print(e)
         elif isinstance(o, Seq):
             return f(self, o)
         elif isinstance(o, Sig):
             return f(self, o.val)
-        elif isinstance(o, Block):
-            return f(self, o)
         else:
             raise ValueError(f"Unsupported type {type(o)}")
 
@@ -69,16 +64,6 @@ def check_sig(f):
 
 
 class Seq:
-
-    @staticmethod
-    def psum(d):
-        return Seq([sum([d[k] for k in range(x+1)]) for x in range(len(d))])
-
-    @staticmethod
-    def unsum(d):
-        out = d*Seq([1, -1])
-        l = len(out)
-        return out[:l-1]
 
     def __init__(self, val=None):
         if val is None:
@@ -225,9 +210,11 @@ class Seq:
             out[k] = self[k // a]
         return out
 
+    # Add a value to the end of the sequence
     def append(self, v: (int, float)):
         self.val.append(v)
 
+    # The recursive signature function
     def f(self, l=std_l, iter=-1):
         if iter == 0:
             return self
@@ -242,6 +229,8 @@ class Seq:
         else:
             return r
 
+    # The inverse signature function
+    # Only works for sequences which begin with 1
     def i(self):
         if self[0] != 1:
             raise ValueError("non-invertible: arg d must begin with 1")
@@ -253,10 +242,12 @@ class Seq:
             r.append(n)
         return r
 
+    # Converts the given sequence to its additive inverse
     def neg(self):
         out = [-k for k in self]
         return Seq(out)
 
+    # Removes trailing zeroes from a sequence
     def trim(self):
         out = copy.deepcopy(self.val)
         while out[len(out)-1] == 0 and len(out) > 0:
@@ -410,12 +401,15 @@ class Sig:
     def append(self, i: (int, float)):
         self.val.append(i)
 
+    # The recursive signature function
     def f(self, l=std_l):
         return Sig(self.val.f(l=l))
 
-    def inv_f(self):
+    # The inverse signature function
+    def i(self):
         return Sig(self.val.i())
 
+    # Converts the given signature to its additive inverse
     def neg(self):
         out = [-k for k in self]
         return Sig(out)
@@ -425,11 +419,12 @@ class Block:
 
     @staticmethod
     def blank(l=std_l):
+        # A matrix consisting entirely of zeroes
         return Block([Seq([0 for k in range(l)]) for x in range(l)])
 
     @staticmethod
     def g_matrix(s, g):
-        # The matrix G_S_d^p is defined in section 5.5 of SNR
+        # The matrix G_S_d^p is defined in section 4.5 of SNR
 
         # Generate the next matrix G_S_d^p
         def generate_next_matrix(s_prev, g_p):
@@ -456,28 +451,29 @@ class Block:
 
     @staticmethod
     def identity(l=std_l):
+        # The identity matrix. Also M^0 for a matrix M
         out = Block.blank(l=l)
         for x in range(l):
             out[x][x] = 1
         return out
 
     @staticmethod
-    def power(d, l=std_l, taper=True, flat=False):
+    def power(d, l=std_l, taper=False):
+        # The power triangle d^n_y
         d = d if isinstance(d, Seq) else Seq(d)
-        L = len(d) if flat else (len(d) + 1) * l
-        val = [Seq(1)]
-        for k in range(l-1):
-            val.append((d*val[-1])[:L])
+        out = [Seq([1])]
+        for k in range(1, l):
+            out.append(out[-1] * d)
+        # Tapering maximizes efficiency of computing f()
         if taper:
-            t_l = len(val[-1].trim())-1
-            for k in range(t_l):
-                t = t_l - k
-                val.append((d*val[-1])[:t])
-            l += L
-        return Block(val, l, L)
+            t = len(out[-1].trim()) - 1
+            for k in range(t):
+                out.append((d*out[-1])[:t - k])
+        return Block(out)
 
     @staticmethod
     def sen(d: Seq, l=std_l):
+        # The initial matrix in 4.5
         out = [Seq([1])[:l]]
         out += [Seq(d[0] - 1)]
         for x in range(2, l):
@@ -487,9 +483,9 @@ class Block:
             out.append(Seq(to_add))
         return Block(out)
 
-    def __init__(self, val=None, l=std_l, L=None):
+    def __init__(self, val=None, l=std_l):
         self.l = l
-        self.L = L if L else len(val) if isinstance(val, Seq) else max([len(k) for k in val])
+        self.L = len(val) if isinstance(val, Seq) else max([len(k) for k in val])
         self.val = []
         if val is None:
             self.val.append(Seq([0]))
@@ -565,21 +561,22 @@ class Block:
                 out[x][y] = self[x][y] - other[x][y]
         return out
 
+    # Adds a line to the end of the block
     def append(self, line: Seq):
         self.val.append(line)
 
-    def f(self, a=1):
+    # Enables aerated signature convolution
+    # Defaults to plain signature function
+    def f(self, a=1, g=Seq([1])):
+        g_f = g.f(len(self))
         out = Seq([0 for k in range(len(self))])
         for n in range(len(self)):
             _sum = 0
             for k in range(n+1):
-                _sum += self[n-a*k][k]
+                _sum += self[n-a*k][k] * g_f[n-a*k]
             out[n] = _sum
         return out
 
-    def i(self, a=1):
-        return self.f(a).i()
-
-    def nabla(self, o: Seq):
-        of = o.f()
-        return Seq([sum([self[k][x-k]*of[k] for k in range(x+1)]) for x in range(len(self))])
+    # Performs signature function then inverse signature function
+    def i(self, a=1, g=Seq([1])):
+        return self.f(a, g).i()
