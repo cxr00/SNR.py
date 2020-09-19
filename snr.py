@@ -1,7 +1,7 @@
 import copy
 from math import ceil
 
-std_l = 20
+std_l = 30
 
 
 def check_seq(f):
@@ -215,19 +215,14 @@ class Seq:
         self.val.append(v)
 
     # The recursive signature function
-    def f(self, l=std_l, iter=-1):
-        if iter == 0:
-            return self
+    def f(self, l=std_l):
         r = Seq([1])
         for x in range(1, l):
             n = 0
             for k in range(len(self)):
                 n += self[k] * r[x-k-1]
             r.append(n)
-        if iter > 1:
-            return r.f(l, iter-1)
-        else:
-            return r
+        return r
 
     # The inverse signature function
     # Only works for sequences which begin with 1
