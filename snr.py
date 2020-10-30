@@ -46,13 +46,10 @@ def check_sig(f):
         elif isinstance(o, (int, float)):
             return f(self, Sig(Seq([o])))
         elif isinstance(o, list):
-            # try:
             for e in o:
                 if not isinstance(e, (int, float)):
                     raise ValueError(f"Unsupported type {type(e)}")
             return f(self, Sig(Seq(o)))
-            # except Exception as e:  # could be way better
-            #     print(e)
         elif isinstance(o, Seq):
             return f(self, Sig(o))
         elif isinstance(o, Sig):
@@ -64,6 +61,10 @@ def check_sig(f):
 
 
 class Seq:
+    """
+    The Seq class consists of the ring of sequences, with
+    addition and convolution as operations.
+    """
 
     def __init__(self, val=None):
         if val is None:
@@ -82,13 +83,8 @@ class Seq:
     @check_seq
     def __add__(self, o):
         l = max(len(self), len(o))
-        if isinstance(o, Seq):
-            out = [self[k] + o[k] for k in range(l)]
-            return Seq(out)
-        else:
-            n = Seq(o)
-            out = [self[k] + n[k] for k in range(l)]
-            return Seq(out)
+        out = [self[k] + o[k] for k in range(l)]
+        return Seq(out)
 
     @check_seq
     def __contains__(self, i):
@@ -152,15 +148,8 @@ class Seq:
     @check_seq
     def __mul__(self, o):
         l = len(self) + len(o) - 1
-        if isinstance(o, Seq):
-            r = [sum(self[k] * o[x - k] for k in range(x + 1)) for x in range(l)]
-            return Seq(r)
-        elif isinstance(o, Block):
-            return o * self
-        else:
-            n = Seq(o)
-            r = [sum(self[k] * n[x - k] for k in range(x + 1)) for x in range(l)]
-            return Seq(r)
+        r = [sum(self[k] * o[x - k] for k in range(x + 1)) for x in range(l)]
+        return Seq(r)
 
     def __pow__(self, power, modulo=None):
         a = Seq(self)
@@ -175,8 +164,6 @@ class Seq:
 
     @check_seq
     def __rmul__(self, o):
-        if isinstance(o, Block):
-            return o * self
         return self * o
 
     @check_seq
@@ -256,10 +243,14 @@ x = Seq([0, 1])
 
 
 class Sig:
+    """
+    The Sig class implements the signature left near-ring's
+    operations of signature addition and signature convolution.
+    """
 
     def __init__(self, sig=None):
         if sig is None:
-            self.val = Seq()
+            self.val = Seq([0])
         elif isinstance(sig, (int, float)):
             self.val = Seq([sig])
         elif isinstance(sig, list):
@@ -273,6 +264,7 @@ class Sig:
 
     @check_sig
     def __add__(self, o):
+        # Commutative signature addition
         return Sig(self.val + o.val - x * self.val * o.val)
 
     @check_sig
@@ -342,6 +334,7 @@ class Sig:
 
     @check_sig
     def __mul__(self, o):
+        # Signature convolution
         out = Seq(0)
         a = self.val
         aw = a * x
@@ -411,6 +404,10 @@ class Sig:
 
 
 class Block:
+    """
+    The Block class allows for the construction of various
+    matrices in order to experiment with antidiagonal summation
+    """
 
     @staticmethod
     def blank(l=std_l):
