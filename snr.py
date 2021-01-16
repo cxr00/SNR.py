@@ -191,7 +191,7 @@ class Seq:
 
     # Transform a sequence into its aerated version
     # Eg [1, 1] to [1, 0, 1] or [1, 1, 1] to [1, 0, 0, 1, 0, 0, 1]
-    def aerate(self, a):
+    def aerate(self, a=2):
         out = Seq([0 for k in range(len(self) * a)])
         for k in range(0, len(self) * a, a):
             out[k] = self[k // a]
@@ -416,9 +416,9 @@ class Block:
 
     @staticmethod
     def g_matrix(s, g):
-        # The matrix G_S_d^p is defined in section 4.5 of SNR
+        # The matrix S_d^p is defined in section 4.5 of SNR
 
-        # Generate the next matrix G_S_d^p
+        # Generate the next matrix S_d^p
         def generate_next_matrix(s_prev, g_p):
             out = Block.blank(std_l)
             f_g_p = g_p.f(std_l)
