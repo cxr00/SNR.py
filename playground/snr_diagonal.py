@@ -27,9 +27,18 @@ def diagonal_sum(s):
 def test_diagonal_sum():
     # Initial parameters
     d = Seq([1, 1])
-    g = [Seq([1])]
+    g = [Seq([1, 1])]
     s = Block.g_matrix(Block.sen(d), g)
 
     # Function call to compute diagonal sum
     print(diagonal_sum(s))
     print(diagonal_sum(s).i())
+
+    dfd = Sig(d * d.neg().f())
+    sum_gk = Sig(0)
+    for g_k in g:
+        sum_gk += Sig(g_k)
+    sum_gk = Sig(Seq(-1) + Seq(sum_gk))
+    print((dfd + sum_gk).f())
+
+test_diagonal_sum()
