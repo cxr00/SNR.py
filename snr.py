@@ -142,8 +142,6 @@ class Seq:
     def __mod__(self, o):
         if isinstance(o, int):
             return Seq([k % o for k in self])
-        elif isinstance(o, Seq):
-            return Seq([self[k] % o[k] for k in range(min(len(self), len(o)))])
 
     @check_seq
     def __mul__(self, o):
