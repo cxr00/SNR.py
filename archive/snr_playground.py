@@ -3,8 +3,8 @@ Miscellaneous efforts at constructing alternate g-matrices.
 Nothing particularly interesting about their signatures however.
 """
 from snr import *
-from playground.snr_diagonal import diagonal_sum
-from playground.snr_column import first_column_sum
+from identities.snr_diagonal import diagonal_sum
+from identities.snr_column import first_column_sum
 
 
 # Multiplies two sen matrices
