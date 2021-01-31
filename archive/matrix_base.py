@@ -45,14 +45,3 @@ s = counting_test_2(d)
 
 print(s)
 print(s.i())
-
-# blk = []
-#
-# for x in range(1, 10):
-#     g = d * x
-#     blk.append(counting_test_1(g))
-#
-# blk = Block(blk)
-#
-# print(blk, end="\n\n")
-# print(blk.f())
