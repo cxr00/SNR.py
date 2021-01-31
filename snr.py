@@ -8,6 +8,8 @@ def check_seq(f):
     """
     Auxiliary method which checks inputs to Seq methods
 
+    Ensures that the numerical input is translated to a Seq object
+
     :param f: the function to be decorated
     :return: the decorated function
     """
@@ -35,6 +37,8 @@ def check_seq(f):
 def check_sig(f):
     """
         Auxiliary method which checks inputs to Sig methods
+
+        Ensures that the numerical input is translated to a Sig object
 
         :param f: the function to be decorated
         :return: the decorated function
@@ -187,20 +191,34 @@ class Seq:
         r = ([int(x) if int(x) == x else x for x in r])
         return Seq(r)
 
-    # Transform a sequence into its aerated version
-    # Eg [1, 1] to [1, 0, 1] or [1, 1, 1] to [1, 0, 0, 1, 0, 0, 1]
     def aerate(self, a=2):
+        """
+        Transform a sequence into its aerated version
+        Eg [1, 1] to [1, 0, 1] or [1, 1, 1] to [1, 0, 0, 1, 0, 0, 1]
+
+        :param a: the aeration coefficient
+        :return: the aerated sequence
+        """
         out = Seq([0 for k in range(len(self) * a)])
         for k in range(0, len(self) * a, a):
             out[k] = self[k // a]
         return out
 
-    # Add a value to the end of the sequence
     def append(self, v: (int, float)):
+        """
+        Add a value to the end of the sequence
+
+        :param v: the value to be added
+        """
         self.val.append(v)
 
-    # The recursive signature function
     def f(self, l=std_l):
+        """
+        The recursive signature function
+
+        :param l: the length of the sequence
+        :return: the sequence F_d
+        """
         r = Seq([1])
         for x in range(1, l):
             n = 0
@@ -209,9 +227,13 @@ class Seq:
             r.append(n)
         return r
 
-    # The inverse signature function
-    # Only works for sequences which begin with 1
     def i(self):
+        """
+        The inverse signature function
+        Only works for sequences which begin with 1
+
+        :return: the sequence F^(-1)_d
+        """
         if self[0] != 1:
             raise ValueError("non-invertible: arg d must begin with 1")
         r = Seq([self[1]])
@@ -222,13 +244,21 @@ class Seq:
             r.append(n)
         return r
 
-    # Converts the given sequence to its additive inverse
     def neg(self):
+        """
+        Converts the given sequence to its additive inverse
+
+        :return: the additive inverse of the sequence
+        """
         out = [-k for k in self]
         return Seq(out)
 
-    # Removes trailing zeroes from a sequence
     def trim(self):
+        """
+        Removes trailing zeroes from a sequence
+
+        :return: the sequence without trailing zeroes
+        """
         out = copy.deepcopy(self.val)
         while out[len(out)-1] == 0 and len(out) > 0:
             out.pop(len(out)-1)
@@ -344,6 +374,7 @@ class Sig:
         return Sig(out)
 
     def __pow__(self, power, modulo=None):
+        # Signature convolution powers
         out = Sig(1)
         a = Sig(self)
         for k in range(power):
@@ -367,7 +398,7 @@ class Sig:
         return Sig((self.val - o.val) * o.f())
 
     def __str__(self):
-        return ", ".join([str(n) for n in self.val])
+        return ", ".join([str(n) for n in self.trim().val])
 
     @check_sig
     def __truediv__(self, a):
@@ -385,19 +416,51 @@ class Sig:
         return Sig(out)
 
     def append(self, i: (int, float)):
+        """
+        Add a value to the end of the sequence
+
+        :param v: the value to be added
+        """
         self.val.append(i)
 
-    # The recursive signature function
     def f(self, l=std_l):
+        """
+        The recursive signature function
+
+        :param l: the length of the sequence
+        :return: the signature F_d
+        """
         return Sig(self.val.f(l=l))
 
-    # The inverse signature function
     def i(self):
+        """
+        The inverse signature function
+        Only works for sequences which begin with 1
+
+        :return: the signature F^(-1)_d
+        """
         return Sig(self.val.i())
 
-    # Converts the given signature to its additive inverse
     def neg(self):
+        """
+        Converts the given sequence to its additive inverse
+
+        :return: the additive inverse of the sequence
+        """
         out = [-k for k in self]
+        return Sig(out)
+
+    def trim(self):
+        """
+        Removes trailing zeroes from a sequence
+
+        :return: the sequence without trailing zeroes
+        """
+        out = copy.deepcopy(self.val.val)
+        while out[len(out)-1] == 0 and len(out) > 0:
+            out.pop(len(out)-1)
+            if len(out) == 0:
+                break
         return Sig(out)
 
 
@@ -409,15 +472,32 @@ class Block:
 
     @staticmethod
     def blank(l=std_l):
-        # A matrix consisting entirely of zeroes
+        """
+        Generates a matrix consisting entirely of zeroes
+
+        :param l: the length of the matrix
+        :return: a blank matrix
+        """
         return Block([Seq([0 for k in range(l)]) for x in range(l)])
 
     @staticmethod
     def g_matrix(s, g):
-        # The matrix S_d^p is defined in section 4.5 of SNR
+        """
+        The matrix S_d^p is defined in section 4.5 of SNR
 
-        # Generate the next matrix S_d^p
+        :param s: the initial matrix to be transformed
+        :param g: the set of signatures to transform s
+        :return: the transformed matrix S_d^p
+        """
+
         def generate_next_matrix(s_prev, g_p):
+            """
+            Generate the next matrix S_d^p
+
+            :param s_prev: the matrix to be transformed
+            :param g_p: the transforming signature
+            :return: the transformed matrix
+            """
             out = Block.blank(std_l)
             f_g_p = g_p.f(std_l)
 
@@ -441,15 +521,27 @@ class Block:
 
     @staticmethod
     def identity(l=std_l):
-        # The identity matrix. Also M^0 for a matrix M
+        """
+        The identity matrix. Also M^0 for a matrix M
+
+        :param l: the length of the matrix
+        :return: the identity matrix
+        """
         out = Block.blank(l=l)
-        for x in range(l):
-            out[x][x] = 1
+        for n in range(l):
+            out[n][n] = 1
         return out
 
     @staticmethod
     def power(d, l=std_l, taper=False):
-        # The power triangle d^n_y
+        """
+        The power triangle d^n_y
+
+        :param d: the sequence base of the triangle
+        :param l: the length of the triangle
+        :param taper: whether or not to extend the triangle in a way amenable to antidiagonal summation
+        :return: the power triangle of d
+        """
         d = d if isinstance(d, Seq) else Seq(d)
         out = [Seq([1])]
         for k in range(1, l):
@@ -463,7 +555,13 @@ class Block:
 
     @staticmethod
     def sen(d: Seq, l=std_l):
-        # The initial matrix in 4.5
+        """
+        The initial triangular matrix in 4.5
+
+        :param d: the generating sequence for the matrix
+        :param l: the length of the matrix
+        :return: the generated sen matrix
+        """
         out = [Seq([1])[:l]]
         out += [Seq(d[0] - 1)]
         for x in range(2, l):
@@ -526,7 +624,6 @@ class Block:
                     out[x][y] = sum([self[x][k] * other[k][y] for k in range(self.L)])
             return out
 
-    # My handling of powers of blocks is problematic
     def __pow__(self, power, modulo=None):
         if power == 0:
             return Block.identity(len(self))
@@ -551,13 +648,23 @@ class Block:
                 out[x][y] = self[x][y] - other[x][y]
         return out
 
-    # Adds a line to the end of the block
     def append(self, line: Seq):
+        """
+        Adds a line to the end of the block
+
+        :param line: the line to be added to the block
+        """
         self.val.append(line)
 
-    # Enables aerated signature convolution
-    # Defaults to plain signature function
     def f(self, a=1, g=Seq([1])):
+        """
+        Enables aerated signature convolution
+        Defaults to plain signature function
+
+        :param a: the aeration coefficient
+        :param g: the signature convolution coefficient
+        :return: the sequence result of antidiagonal summation
+        """
         g_f = g.f(len(self))
         out = Seq([0 for k in range(len(self))])
         for n in range(len(self)):
@@ -567,6 +674,12 @@ class Block:
             out[n] = _sum
         return out
 
-    # Performs signature function then inverse signature function
     def i(self, a=1, g=Seq([1])):
+        """
+        Performs signature function then inverse signature function
+
+        :param a: the aeration coefficient for f()
+        :param g: the signature convolution coefficient for f()
+        :return: the sequence result of the operation
+        """
         return self.f(a, g).i()
