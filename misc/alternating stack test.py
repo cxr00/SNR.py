@@ -2,6 +2,17 @@ import snr
 
 
 def run_test(n: int, b=2):
+    """
+    Computes the number of cycles it takes for the stack to
+    be restored.
+
+    Rather than stacking from 0 to b-1, then returning to zero, this
+    method goes from 0 to b-1, then from b-1 to 0, then from 0 to b-1 again, etc.
+
+    :param n: the number of items to stack
+    :param b: the number of slots to stack items
+    :return: the number of cycles to restore the stack
+    """
 
     if n == 0:
         return 0
@@ -20,16 +31,22 @@ def run_test(n: int, b=2):
     change = 1
 
     def condition_met():
-        num_greater_than_zero = 0
+        """
+        :return: whether the list has only a single value which is not zero
+        """
+        num_not_zero = 0
         for k in range(len(l)):
             if l[k] > 0:
-                if num_greater_than_zero == 1:
+                if num_not_zero == 1:
                     return False
                 else:
-                    num_greater_than_zero += 1
+                    num_not_zero += 1
         return True
 
     def check_change():
+        """
+        :return: the direction which stacking takes place
+        """
         nonlocal change
         if loc == 0:
             return 1
@@ -65,6 +82,7 @@ def run_test(n: int, b=2):
 
 s = [snr.Seq(1).f(l=12)]
 
+# Construct matrix M(b, n)
 for b in range(2, 13):
     to_append = snr.Seq()
     for n in range(1, 13):
@@ -78,4 +96,4 @@ g = snr.Seq([1])
 print()
 
 print(s.f(g=g))
-print(s.f().i())
+print(s.i(g=g))

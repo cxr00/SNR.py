@@ -2,15 +2,28 @@ import snr
 
 
 def run_test(n: int, b=2):
+    """
+    Computes the number of cycles it takes for the stack to
+    be restored.
+
+    Items are stacked from 0 to b-1, then the stacking resumes at 0 again.
+
+    :param n: the number of items to stack
+    :param b: the number of slots to stack items
+    :return: the number of cycles to restore the stack
+    """
 
     def condition_met():
-        num_greater_than_zero = 0
+        """
+        :return: whether the list has only a single value which is not zero
+        """
+        num_not_zero = 0
         for k in range(len(l)):
             if l[k] > 0:
-                if num_greater_than_zero == 1:
+                if num_not_zero == 1:
                     return False
                 else:
-                    num_greater_than_zero += 1
+                    num_not_zero += 1
         return True
 
     if n == 0:
@@ -27,12 +40,13 @@ def run_test(n: int, b=2):
     while not all_others_are_zero:
         cycles += 1
         k = 0
-        # print(l)
 
+        # find next stack to take
         while k == 0:
             loc = (loc + 1) % b
             k = l[loc]
 
+        # Distribute stack to slots
         l[loc] = 0
         for x in range(k):
             l[(x + loc + 1) % b] += 1
@@ -46,6 +60,7 @@ def run_test(n: int, b=2):
 
 s = []
 
+# Generate a matrix M(b, n)
 for b in range(1, 20):
     to_append = snr.Seq()
     for n in range(1, 20):
@@ -53,9 +68,11 @@ for b in range(1, 20):
     print(to_append)
     s.append(to_append)
 
+print()
+
 s = snr.Block(s)
 g = snr.Seq([1])
 
-print()
+# See if the matrix has an interesting signature
 print(s.f(g=g))
-print(s.f().i())
+print(s.i(g=g))
