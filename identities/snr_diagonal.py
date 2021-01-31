@@ -41,4 +41,3 @@ def test_diagonal_sum():
     sum_gk = Sig(Seq(-1) + Seq(sum_gk))
     print((dfd + sum_gk).f())
 
-test_diagonal_sum()
