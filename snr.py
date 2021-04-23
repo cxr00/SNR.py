@@ -625,7 +625,7 @@ class Block:
             for x in range(self.L):
                 for y in range(self.L):
                     out[x][y] = sum([self[x][k] * other[k][y] for k in range(self.L)])
-            return out
+            return out.trim()
 
     def __pow__(self, power, modulo=None):
         if power == 0:
@@ -686,3 +686,12 @@ class Block:
         :return: the sequence result of the operation
         """
         return self.f(a, g).i()
+
+    def trim(self):
+        out = copy.deepcopy(self)
+        while len(out) > 0:
+            if len(out[len(out)-1].trim()) == 0:
+                out = out[:len(out)-1]
+            else:
+                return out
+        return out
