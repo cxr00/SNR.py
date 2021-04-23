@@ -96,7 +96,9 @@ class Seq:
 
     @check_seq
     def __eq__(self, o):
-        return all(self[k] == o[k] for k in range(max(len(self), len(o))))
+        if len(self.trim()) != len(o.trim()):
+            return False
+        return all(self[k] == o[k] for k in range(len(self.trim())))
 
     @check_seq
     def __ge__(self, o):
@@ -406,10 +408,10 @@ class Sig:
         out = []
         ap = Seq(self)
         bp = Seq(a)
-        l = max(len(self), len(a))
-        for x in range(l):
-            out.append(ap[x] / bp[x])
-            ap -= bp*out[x]
+        l = max(len(self), len(a), std_l)
+        for n in range(l):
+            out.append(ap[n] / bp[n])
+            ap -= bp*out[n]
             bp *= x * a
         while out[-1] == 0:
             out.pop(-1)
