@@ -535,7 +535,7 @@ class Block:
         return out
 
     @staticmethod
-    def power(d, l=std_l, taper=False):
+    def power(d: Seq, l=std_l, taper=False):
         """
         The power triangle d^n_y
 
@@ -595,9 +595,10 @@ class Block:
             raise ValueError(f"Unsupported type {type(val)}")
 
     def __add__(self, other):
-        out = Block([Seq([0 for k in range(self.L)]) for x in range(self.L)])
-        for x in range(self.L):
-            for y in range(self.L):
+        width = max(self.L, other.L)
+        out = Block([Seq([0 for k in range(width)]) for x in range(width)])
+        for x in range(width):
+            for y in range(width):
                 out[x][y] = self[x][y] + other[x][y]
         return out
 
