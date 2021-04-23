@@ -45,7 +45,7 @@ def multiply_sen_matrices():
     print(diag_sba.i())
 
 
-# Constructs a p-matrix by multiplying a sen matrix by a power triangle
+# Constructs a g-matrix by multiplying a sen matrix by a power triangle
 # Since the process is noncommutative, both arrangements are tested
 # Doesn't yield anything interesting as of yet
 def multiply_sen_by_power():
@@ -85,7 +85,7 @@ def multiply_sen_by_power():
     print()
 
 
-# Constructs a p-matrix with the signature convolution powers a^(n)
+# Constructs a g-matrix with the signature convolution powers a^(n)
 # Doesn't yield anything interesting as of yet
 def convolution_initial_matrix():
     a = Seq([1, 1])
@@ -107,7 +107,7 @@ def convolution_initial_matrix():
     print(fcs_sab.i())
 
 
-# Constructs a p-matrix with a power triangle
+# Constructs a g-matrix with a power triangle
 # When a = Seq([1, 1]) the column sum is A005001
 # When a = Seq([1, 1]) the diagonal sum is A320964
 def power_initial_matrix():
