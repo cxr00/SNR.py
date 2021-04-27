@@ -186,10 +186,20 @@ class Seq:
         return ", ".join([str(n) for n in self.trim().val])
 
     def __truediv__(self, o):
-        r = Seq(self[0]/o[0])
-        l = max(len(self), len(o))
+        # Remove leading zeroes, which is basically factoring out x
+        temp_self = copy.deepcopy(self)
+        temp_o = copy.deepcopy(o)
+        while True:
+            if temp_self[0] == temp_o[0] == 0:
+                temp_self.val.pop(0)
+                temp_o.val.pop(0)
+            else:
+                break
+
+        r = Seq(temp_self[0]/temp_o[0])
+        l = max(len(temp_self), len(temp_o))
         for x in range(1, l):
-            r.append((self[x] - sum(r[k] * o[x-k] for k in range(x))) / o[0])
+            r.append((temp_self[x] - sum(r[k] * temp_o[x-k] for k in range(x))) / temp_o[0])
         r = ([int(x) if int(x) == x else x for x in r])
         return Seq(r)
 
@@ -575,7 +585,7 @@ class Block:
 
     def __init__(self, val=None):
         self.l = len(val) if val else 1
-        self.L = len(val) if isinstance(val, Seq) else max([len(k) for k in val])
+        self.width = max([len(k) for k in val])
         self.val = []
         if val is None:
             self.val.append(Seq(0))
@@ -596,7 +606,7 @@ class Block:
 
     def __add__(self, other):
         length = max(len(self), len(other))
-        width = max(self.L, other.L)
+        width = max(self.width, other.width)
         out = Block([Seq([0 for k in range(width)]) for x in range(width)])
         for x in range(length):
             for y in range(width):
@@ -604,11 +614,10 @@ class Block:
         return out
 
     def __truediv__(self, num):
-        # Division by integers
         if isinstance(num, int):
             out = copy.deepcopy(self)
             for n in range(len(out)):
-                for k in range(out.L):
+                for k in range(out.width):
                     out[n][k] = out[n][k] / num
             return out
         elif isinstance(num, Seq):
@@ -638,10 +647,10 @@ class Block:
         if isinstance(other, Seq):
             return Block([other*g for g in self])
         if isinstance(other, Block):
-            out = Block([Seq([0 for k in range(max(self.L, other.L))]) for x in range(max(self.l, other.l))])
-            for x in range(self.L):
-                for y in range(self.L):
-                    out[x][y] = sum([self[x][k] * other[k][y] for k in range(self.L)])
+            out = Block([Seq([0 for k in range(max(self.width, other.width))]) for x in range(max(self.l, other.l))])
+            for x in range(self.width):
+                for y in range(self.width):
+                    out[x][y] = sum([self[x][k] * other[k][y] for k in range(self.width)])
             return out.trim()
 
     def __pow__(self, power, modulo=None):
