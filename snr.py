@@ -280,7 +280,7 @@ class Sig:
 
     def __init__(self, sig=None):
         if sig is None:
-            self.val = Seq([0])
+            self.val = Seq()
         elif isinstance(sig, (int, float)):
             self.val = Seq([sig])
         elif isinstance(sig, list):
@@ -545,14 +545,14 @@ class Block:
         :return: the power triangle of d
         """
         d = d if isinstance(d, Seq) else Seq(d)
-        out = [Seq([1])]
+        out = [Seq(1)]
         for k in range(1, l):
             out.append(out[-1] * d)
         # Tapering maximizes efficiency of computing f()
         if taper:
             t = len(out[-1].trim()) - 1
             for k in range(t):
-                out.append((d*out[-1])[:t - k])
+                out.append((out[-1] * d)[:t - k])
         return Block(out)
 
     @staticmethod
@@ -573,12 +573,12 @@ class Block:
             out.append(Seq(to_add))
         return Block(out)
 
-    def __init__(self, val=None, l=std_l):
-        self.l = l
+    def __init__(self, val=None):
+        self.l = len(val) if val else 1
         self.L = len(val) if isinstance(val, Seq) else max([len(k) for k in val])
         self.val = []
         if val is None:
-            self.val.append(Seq([0]))
+            self.val.append(Seq(0))
         elif isinstance(val, (int, float)):
             self.val.append(Seq([int(val) if int(val) == val else val]))
         elif isinstance(val, list):
@@ -595,12 +595,29 @@ class Block:
             raise ValueError(f"Unsupported type {type(val)}")
 
     def __add__(self, other):
+        length = max(len(self), len(other))
         width = max(self.L, other.L)
         out = Block([Seq([0 for k in range(width)]) for x in range(width)])
-        for x in range(width):
+        for x in range(length):
             for y in range(width):
                 out[x][y] = self[x][y] + other[x][y]
         return out
+
+    def __truediv__(self, num):
+        # Division by integers
+        if isinstance(num, int):
+            out = copy.deepcopy(self)
+            for n in range(len(out)):
+                for k in range(out.L):
+                    out[n][k] = out[n][k] / num
+            return out
+        elif isinstance(num, Seq):
+            out = []
+            for n in range(len(self)):
+                out.append(self[n] / num)
+            return Block(val=out)
+        else:
+            raise ValueError("Incompatible type; must be int or Seq")
 
     def __getitem__(self, i):
         if isinstance(i, int):
@@ -645,11 +662,7 @@ class Block:
         return out
 
     def __sub__(self, other):
-        out = Block([Seq([0 for k in range(self.L)]) for x in range(self.L)])
-        for x in range(self.L):
-            for y in range(self.L):
-                out[x][y] = self[x][y] - other[x][y]
-        return out
+        return (self + other.neg()).trim()
 
     def append(self, line: Seq):
         """
@@ -695,3 +708,7 @@ class Block:
             else:
                 return out
         return out
+
+    def neg(self):
+        out = [v.neg() for v in self]
+        return Block(out)

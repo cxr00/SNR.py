@@ -9,8 +9,7 @@ the signature function and SNR
 The Seq class is the base class for mathematical manipulations of sequences.
 
 Seq objects may be constructed easily with a list or tuple of integers and floats.
-If the list or tuple is empty, the null sequence is created.
-If no arguments are specified, the zero sequence is created.
+If no argument is specified, the null sequence is created.
 
 ```python
 a = Seq()
