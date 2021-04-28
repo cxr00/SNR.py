@@ -25,34 +25,62 @@ def get_num_columns(seq_a, seq_b):
             return out
 
 
-std_l = 20
 
-seq_a = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
-seq_b = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
+# Tests
 
-print(seq_a)
-print(seq_b)
-print()
+def test_1():
+    # Compute Sig(a) + Sig(b) via block subtraction
+    # Made before zero factoring was added to Seq division, so it relies
+    # on the get_num_columns method to determine offset
+    std_l = 20
 
-a_is_greater = False
+    seq_a = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
+    seq_b = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
 
-if seq_a > seq_b:
-    a_is_greater = True
+    print(seq_a)
+    print(seq_b)
+    print()
 
-a = Block.power(seq_a, std_l)
-b = Block.power(seq_b, std_l)
+    a_is_greater = False
 
-diff = a-b if a_is_greater else b-a
-seq_diff = seq_a-seq_b if a_is_greater else seq_b-seq_a
+    if seq_a > seq_b:
+        a_is_greater = True
 
-print(diff)
+    a = Block.power(seq_a, std_l)
+    b = Block.power(seq_b, std_l)
 
-ab_adv = advance(diff, 1, get_num_columns(seq_a, seq_b))
-ab_adv = ab_adv / factor_out_x(seq_diff)
+    diff = a-b if a_is_greater else b-a
+    seq_diff = seq_a-seq_b if a_is_greater else seq_b-seq_a
 
-print(ab_adv)
+    print(diff)
 
-print(ab_adv.i())
-print(Sig(seq_b) + Sig(seq_a))
+    ab_adv = advance(diff, 1, get_num_columns(seq_a, seq_b))
+    ab_adv = ab_adv / factor_out_x(seq_diff)
 
-print(Seq([sum(ab_adv[k].val) for k in range(len(ab_adv))]).i())
+    print(ab_adv)
+
+    print(ab_adv.i())
+    print(Sig(seq_b) + Sig(seq_a))
+
+    print(Seq([sum(ab_adv[k].val) for k in range(len(ab_adv))]).i())
+
+
+def test_2():
+    # A closed form to compute Sig(a) + Sig(b) via subtraction
+    # Does not rely on get_num_columns
+
+    a = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
+    b = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
+    aminb = a - b
+
+    output = []
+    for n in range(15):
+        _sum = 0
+        for k in range(n+1):
+            _sum += ((a**(k+1) - b**(k+1)) / aminb)[n - k]
+        output.append(_sum)
+
+    print(output)
+    print(Seq(output).i())
+    print(Sig(a) + Sig(b))
+
