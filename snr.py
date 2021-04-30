@@ -86,9 +86,14 @@ class Seq:
 
     @check_seq
     def __add__(self, o):
-        l = max(len(self), len(o))
-        out = [self[k] + o[k] for k in range(l)]
-        return Seq(out)
+        if isinstance(o, int):
+            return self + Seq(o)
+        elif isinstance(o, Seq):
+            l = max(len(self), len(o))
+            out = [self[k] + o[k] for k in range(l)]
+            return Seq(out)
+        else:
+            raise ValueError(f"Unsupported type {type(o)}")
 
     @check_seq
     def __contains__(self, i):
@@ -189,19 +194,22 @@ class Seq:
         # Remove leading zeroes, which is basically factoring out x
         temp_self = copy.deepcopy(self)
         temp_o = copy.deepcopy(o)
-        while True:
+        while len(temp_o) > 0 and len(temp_self) > 0:
             if temp_self[0] == temp_o[0] == 0:
-                temp_self.val.pop(0)
-                temp_o.val.pop(0)
+                temp_self.pop(0)
+                temp_o.pop(0)
             else:
                 break
 
+        # If either sequence is blank, no division is performed
+        if len(temp_o) == 0 or len(temp_self) == 0:
+            return temp_self
+
         r = Seq(temp_self[0]/temp_o[0])
-        l = max(len(temp_self), len(temp_o))
-        for x in range(1, l):
+        for x in range(1, std_l):
             r.append((temp_self[x] - sum(r[k] * temp_o[x-k] for k in range(x))) / temp_o[0])
         r = ([int(x) if int(x) == x else x for x in r])
-        return Seq(r)
+        return Seq(r).trim()
 
     def aerate(self, a=2):
         """
@@ -264,6 +272,9 @@ class Seq:
         """
         out = [-k for k in self]
         return Seq(out)
+
+    def pop(self, index=0):
+        return self.val.pop(index)
 
     def trim(self):
         """
