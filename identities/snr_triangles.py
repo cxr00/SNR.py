@@ -23,7 +23,7 @@ def K_d(d, a):
 
     s = Sig(1) + Sig((x**a) * d.aerate(a+1))
     print(s.f())
-    return b
+    return b.f(a)
 
 
 def Q_d(d, a):
@@ -36,7 +36,7 @@ def Q_d(d, a):
 
     s = Sig(d) + Sig(x**a)
     print(s.f())
-    return b
+    return b.f(a)
 
 
 def G_d(d, a):
@@ -49,7 +49,7 @@ def G_d(d, a):
 
     s = d + x**a
     print(s.f())
-    return b
+    return b.f(a)
 
 
 def B_d(d, a):
@@ -62,7 +62,7 @@ def B_d(d, a):
 
     s = Seq([1]) + (x**a)*d.aerate(a+1)
     print(s.f())
-    return b
+    return b.f(a)
 
 
 def P_d(d, a):
@@ -74,7 +74,7 @@ def P_d(d, a):
 
     s = d * x**a
     print(s.f())
-    return b
+    return b.f(a)
 
 
 def P_prime_d(d, a=1):
@@ -86,7 +86,7 @@ def P_prime_d(d, a=1):
 
     s = d*(x**a)
     print(d*s.f())
-    return b
+    return b.f(a)
 
 
 def J_d(d, a):
@@ -98,7 +98,7 @@ def J_d(d, a):
 
     s = d.aerate(a+1)
     print(s.f())
-    return b
+    return b.f(a)
 
 
 # When d = Seq([1, 1]) then J_prime_d(n) = A000930(n+1)
@@ -111,4 +111,4 @@ def J_prime_d(d, a):
 
     s = d.aerate(a+1)
     print(s * s.f())
-    return b
+    return b.f(a)
