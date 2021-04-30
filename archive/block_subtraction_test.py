@@ -2,36 +2,34 @@ from snr import *
 import random
 
 
-def advance(b, rows, columns):
-    # For testing with block_subtraction_test
-    return Block([b[k][columns:] for k in range(rows, len(b))])
-
-
-def factor_out_x(input):
-    while len(input) > 0:
-        if input[0] == 0:
-            input.val.pop(0)
-        else:
-            return input
-    return input
-
-
-def get_num_columns(seq_a, seq_b):
-    out = 0
-    for n in range(max(len(seq_a), len(seq_b))):
-        if seq_a[n] == seq_b[n]:
-            out += 1
-        else:
-            return out
-
-
-
-# Tests
-
 def test_1():
+
+    # Trim leading rows and columns from the Block
+    def advance(b, rows, columns):
+        # For testing with block_subtraction_test
+        return Block([b[k][columns:] for k in range(rows, len(b))])
+
+    # Removes zeroes which result in multiplication by snr.x
+    def factor_out_x(input):
+        while len(input) > 0:
+            if input[0] == 0:
+                input.val.pop(0)
+            else:
+                return input
+        return input
+
+    # Counts the number of consecutive matching digits
+    def consecutive_matching_digits(seq_a, seq_b):
+        out = 0
+        for n in range(max(len(seq_a), len(seq_b))):
+            if seq_a[n] == seq_b[n]:
+                out += 1
+            else:
+                return out
+
     # Compute Sig(a) + Sig(b) via block subtraction
     # Made before zero factoring was added to Seq division, so it relies
-    # on the get_num_columns method to determine offset
+    # on the consecutive_matching_digits method to determine offset
     std_l = 20
 
     seq_a = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
@@ -54,7 +52,7 @@ def test_1():
 
     print(diff)
 
-    ab_adv = advance(diff, 1, get_num_columns(seq_a, seq_b))
+    ab_adv = advance(diff, 1, consecutive_matching_digits(seq_a, seq_b))
     ab_adv = ab_adv / factor_out_x(seq_diff)
 
     print(ab_adv)
@@ -67,20 +65,47 @@ def test_1():
 
 def test_2():
     # A closed form to compute Sig(a) + Sig(b) via subtraction
-    # Does not rely on get_num_columns
+    # Does not rely on consecutive_matching_digits because of zero factoring
+    # This identity does not hold when a == b
+
+    std_l = 15
 
     a = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
     b = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
     aminb = a - b
 
     output = []
-    for n in range(15):
+    for n in range(std_l):
         _sum = 0
         for k in range(n+1):
             _sum += ((a**(k+1) - b**(k+1)) / aminb)[n - k]
         output.append(_sum)
 
     print(output)
-    print(Seq(output).i())
+    print(Seq(output).i() if Seq(output)[0] == 1 else "")
     print(Sig(a) + Sig(b))
+
+
+def test_3():
+
+    std_l = 20
+
+    a = Seq([1, 1, 1])
+    b = Seq([1, 1])
+
+    b_a = Block.power(a)
+    b_b = Block.power(b)
+    # b_b = Block(Block([Seq(0), Seq(0)] + (Block.power(b) * x**2).val).val[:-2])
+
+    n_offset = 1
+    k_offset = 0
+
+    aminb = Block.blank(std_l)
+    for n in range(std_l):
+        for k in range(std_l):
+            aminb[n][k] = b_a[n][k] - b_b[n-n_offset][k-k_offset]
+
+    print(aminb)
+    print(aminb.f())
+    print(aminb.i())
 
