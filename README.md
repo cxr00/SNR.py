@@ -127,6 +127,9 @@ b = Sig([1, 2, 1])
 b = Sig(a)
 ```
 
+
+
+
 ### Mathematical operations
 
 Sig objects can perform signature addition and subtraction, and signature convolution and deconvolution.
@@ -205,101 +208,12 @@ print(a / b)
 #### The signature function
 
 Sig objects may perform the signature and inverse signature function
-the same way as Seq objects can.
+the same way Seq objects can.
 
 ## Block
 
 The Block class exists to perform interesting signature-related operations on
 matrices.
-
-### Mathematical operations
-
-Block objects can be added, subtracted, and multiplied.
-
-#### Addition
-```python
-a = Block.power(Seq([1, 1]), 6)
-b = Block.power(Seq([1, 0, 1]), 6)
-
-print(a + b)
-```
-```
-2
-2, 1, 1
-2, 2, 3, 0, 1
-2, 3, 6, 1, 3, 0, 1
-2, 4, 10, 4, 7, 0, 4, 0, 1
-2, 5, 15, 10, 15, 1, 10, 0, 5, 0, 1
-```
-
-#### Subtraction
-```python
-a = Block.power(Seq([1, 1, 1]), 6)
-b = Block.power(Seq([1, 1]), 6)
-
-print(a - b)
-```
-```
-0
-0, 0, 1
-0, 0, 2, 2, 1
-0, 0, 3, 6, 6, 3, 1
-0, 0, 4, 12, 18, 16, 10, 4, 1
-0, 0, 5, 20, 40, 50, 45, 30, 15, 5, 1
-```
-
-#### Multiplication
-
-Multiplication of Block objects is slightly different from traditional matrix multiplication,
-allowing for multiplication of Blocks with different dimensions. This operation
-is not commutative.
-```python
-a = Block.power(Seq([1, 1]))
-b = Block.power(Seq([2, 1, 1]))
-
-print(a * b)
-print(b * a)
-```
-```
-1
-3, 1, 1
-9, 6, 7, 2, 1
-27, 27, 36, 19, 12, 3
-81, 108, 162, 120, 91, 40
-243, 405, 675, 630, 555, 331
-
-1
-4, 3, 1
-16, 24, 17, 6, 1
-63, 138, 141, 79, 24, 3
-237, 648, 798, 532, 189, 28
-843, 2645, 3630, 2650, 1015, 161
-```
-
-
-### The signature and inverse signature function
-
-The signature function can be performed on Block objects via antidiagonal summation.
-
-```python
-a = Block.power(Seq([1, 1]))
-
-print(a.f()[:9])
-```
-```
-1, 1, 2, 3, 5, 8, 13, 21, 34
-```
-
-When Block.i() function is called, it first performs Block.f(), followed by
-the inverse signature function.
-```python
-a = Block.power(Seq([1, 1]))
-
-print(a.i())
-```
-```
-1, 1
-```
 
 ### Special Blocks
 
@@ -403,6 +317,95 @@ print(a[:6])
 10, 10, 5, 1
 15, 20, 15, 6, 1
 21, 35, 35, 21, 7, 1
+```
+
+### Mathematical operations
+
+Block objects can be added, subtracted, and multiplied.
+
+#### Addition
+```python
+a = Block.power(Seq([1, 1]), 6)
+b = Block.power(Seq([1, 0, 1]), 6)
+
+print(a + b)
+```
+```
+2
+2, 1, 1
+2, 2, 3, 0, 1
+2, 3, 6, 1, 3, 0, 1
+2, 4, 10, 4, 7, 0, 4, 0, 1
+2, 5, 15, 10, 15, 1, 10, 0, 5, 0, 1
+```
+
+#### Subtraction
+```python
+a = Block.power(Seq([1, 1, 1]), 6)
+b = Block.power(Seq([1, 1]), 6)
+
+print(a - b)
+```
+```
+0
+0, 0, 1
+0, 0, 2, 2, 1
+0, 0, 3, 6, 6, 3, 1
+0, 0, 4, 12, 18, 16, 10, 4, 1
+0, 0, 5, 20, 40, 50, 45, 30, 15, 5, 1
+```
+
+#### Multiplication
+
+Multiplication of Block objects is slightly different from traditional matrix multiplication,
+allowing for multiplication of Blocks with different dimensions. This operation
+is not commutative.
+```python
+a = Block.power(Seq([1, 1]))
+b = Block.power(Seq([2, 1, 1]))
+
+print(a * b)
+print(b * a)
+```
+```
+1
+3, 1, 1
+9, 6, 7, 2, 1
+27, 27, 36, 19, 12, 3
+81, 108, 162, 120, 91, 40
+243, 405, 675, 630, 555, 331
+
+1
+4, 3, 1
+16, 24, 17, 6, 1
+63, 138, 141, 79, 24, 3
+237, 648, 798, 532, 189, 28
+843, 2645, 3630, 2650, 1015, 161
+```
+
+
+### The signature and inverse signature function
+
+The signature function can be performed on Block objects via antidiagonal summation.
+
+```python
+a = Block.power(Seq([1, 1]))
+
+print(a.f()[:9])
+```
+```
+1, 1, 2, 3, 5, 8, 13, 21, 34
+```
+
+When Block.i() function is called, it first performs Block.f(), followed by
+the inverse signature function.
+```python
+a = Block.power(Seq([1, 1]))
+
+print(a.i())
+```
+```
+1, 1
 ```
 
 ## Miscellaneous
