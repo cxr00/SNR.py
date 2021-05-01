@@ -6,17 +6,18 @@ The formula is found in 4.5 of SNR.
 from snr import *
 
 
+# Generate partial sums of the first column of a given Block
+# Begins by getting b**std_l to get the fully progressed matrix
+def first_column_sum(b):
+    b = b ** std_l
+    out = Seq([0 for k in range(std_l)])
+    for k in range(std_l):
+        out[k] = out[k - 1] + b[k][0]
+    return out
+
+
 # This function demonstrates the first identity from SNR-5.5
 def test_column_sum():
-
-    # Generate partial sums of the first column of a given Block
-    # Begins by getting b**std_l to get the fully progressed matrix
-    def first_column_sum(b):
-        b = b ** std_l
-        out = Seq([0 for k in range(std_l)])
-        for k in range(std_l):
-            out[k] = out[k - 1] + b[k][0]
-        return out
 
     # Starting signature for S matrix
     d = Seq([1, 1])
