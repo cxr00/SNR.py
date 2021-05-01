@@ -201,9 +201,11 @@ class Seq:
             else:
                 break
 
-        # If either sequence is blank, no division is performed
-        if len(temp_o) == 0 or len(temp_self) == 0:
-            return temp_self
+        # If either sequence is blank after zero removal, division will fail
+        if len(temp_o) == 0:
+            raise ValueError("Cannot divide by zero or null sequence")
+        elif len(temp_self) == 0:
+            raise ValueError("Cannot divide zero or null sequence")
 
         r = Seq(temp_self[0]/temp_o[0])
         for x in range(1, std_l):
