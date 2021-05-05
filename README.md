@@ -61,13 +61,13 @@ print(a * b)
 #### Deconvolution
 
 ```python
-a = Seq([2, 4, 2, 1])
+a = Seq([2, 4, 2])
 b = Seq([1, 1])
 
 print(a / b)
 ```
 ```
-2, 2, 0, 1
+2, 2
 ```
 
 #### The signature function
@@ -126,9 +126,6 @@ b = Sig(3)
 b = Sig([1, 2, 1])
 b = Sig(a)
 ```
-
-
-
 
 ### Mathematical operations
 
@@ -383,6 +380,21 @@ print(b * a)
 843, 2645, 3630, 2650, 1015, 161
 ```
 
+A Block may also be multiplied by a Seq object on the right.
+
+```python
+a = Seq([1, 1])
+b = Block.power(Seq([1, 1]))
+
+print(b * a)
+```
+```
+1, 1
+1, 2, 1
+1, 3, 3, 1
+1, 4, 6, 4, 1
+1, 5, 10, 10, 5, 1
+```
 
 ### The signature and inverse signature function
 
