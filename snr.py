@@ -191,6 +191,9 @@ class Seq:
         return ", ".join([str(n) for n in self.trim().val])
 
     def __truediv__(self, o):
+        if isinstance(o, (int, float)):
+            o = Seq(o)
+
         # Remove leading zeroes, which is basically factoring out x
         temp_self = copy.deepcopy(self)
         temp_o = copy.deepcopy(o)
@@ -500,7 +503,7 @@ class Block:
         """
         Generates a matrix consisting entirely of zeroes
 
-        :param l: the length of the matrix
+        :param l: the length and width of the matrix
         :return: a blank matrix
         """
         return Block([Seq([0 for k in range(l)]) for x in range(l)])
@@ -669,8 +672,8 @@ class Block:
     def __pow__(self, power, modulo=None):
         if power == 0:
             return Block.identity(len(self))
-        out = Block(list(self.val))
-        for k in range(power):
+        out = copy.deepcopy(self)
+        for k in range(1, power):
             out = out * self
         return out
 
