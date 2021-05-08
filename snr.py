@@ -27,6 +27,8 @@ def check_seq(f):
             return f(self, o)
         elif isinstance(o, Sig):
             return f(self, o.val)
+        elif isinstance(o, Block) and f.__name__ == "__mul__":
+            return f(self, o)
         else:
             raise ValueError(f"Unsupported type {type(o)}")
 
@@ -156,6 +158,8 @@ class Seq:
 
     @check_seq
     def __mul__(self, o):
+        if isinstance(o, Block):
+            return o * self
         l = len(self) + len(o) - 1
         r = [sum(self[k] * o[x - k] for k in range(x + 1)) for x in range(l)]
         return Seq(r)
@@ -660,14 +664,17 @@ class Block:
         return len(self.val)
 
     def __mul__(self, other):
-        if isinstance(other, Seq):
+        if isinstance(other, (Seq, int, float)):
             return Block([other*g for g in self])
-        if isinstance(other, Block):
-            out = Block([Seq([0 for k in range(max(self.width, other.width))]) for x in range(max(self.l, other.l))])
-            for x in range(self.width):
-                for y in range(self.width):
+        elif isinstance(other, Block):
+            width = max(self.width, other.width)
+            out = Block([Seq([0 for k in range(width)]) for x in range(max(self.l, other.l))])
+            for x in range(width):
+                for y in range(width):
                     out[x][y] = sum([self[x][k] * other[k][y] for k in range(self.width)])
             return out.trim()
+        else:
+            raise ValueError("Incompatible type; must be int, float, Seq, or Block")
 
     def __pow__(self, power, modulo=None):
         if power == 0:
