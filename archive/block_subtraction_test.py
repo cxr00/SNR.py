@@ -6,19 +6,20 @@ def test_1():
 
     # Trim leading rows and columns from the Block
     def advance(b, rows, columns):
-        # For testing with block_subtraction_test
         return Block([b[k][columns:] for k in range(rows, len(b))])
 
     # Removes zeroes which result in multiplication by snr.x
+    # No longer needed as division by snr.x functions properly now
     def factor_out_x(input):
         while len(input) > 0:
             if input[0] == 0:
-                input.val.pop(0)
+                input.pop(0)
             else:
                 return input
         return input
 
     # Counts the number of consecutive matching digits
+    # Used to provide a parameter to advance()
     def consecutive_matching_digits(seq_a, seq_b):
         out = 0
         for n in range(max(len(seq_a), len(seq_b))):
@@ -26,6 +27,7 @@ def test_1():
                 out += 1
             else:
                 return out
+        return out
 
     # Compute Sig(a) + Sig(b) via block subtraction
     # Made before zero factoring was added to Seq division, so it relies
@@ -95,7 +97,6 @@ def test_3():
 
     b_a = Block.power(a)
     b_b = Block.power(b)
-    # b_b = Block(Block([Seq(0), Seq(0)] + (Block.power(b) * x**2).val).val[:-2])
 
     n_offset = 1
     k_offset = 0
