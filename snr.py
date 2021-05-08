@@ -633,20 +633,13 @@ class Block:
                 out[x][y] = self[x][y] + other[x][y]
         return out
 
-    def __truediv__(self, num):
-        if isinstance(num, int):
-            out = copy.deepcopy(self)
-            for n in range(len(out)):
-                for k in range(out.width):
-                    out[n][k] = out[n][k] / num
-            return out
-        elif isinstance(num, Seq):
-            out = []
-            for n in range(len(self)):
-                out.append(self[n] / num)
-            return Block(val=out)
-        else:
-            raise ValueError("Incompatible type; must be int or Seq")
+    def __eq__(self, other):
+        if not isinstance(other, Block):
+            raise ValueError(f"Unsupported type {type(other)}; must be Block")
+        for n in range(max(len(self), len(other))):
+            if self[n] != other[n]:
+                return False
+        return True
 
     def __getitem__(self, i):
         if isinstance(i, int):
@@ -695,6 +688,21 @@ class Block:
 
     def __sub__(self, other):
         return (self + other.neg()).trim()
+
+    def __truediv__(self, num):
+        if isinstance(num, int):
+            out = copy.deepcopy(self)
+            for n in range(len(out)):
+                for k in range(out.width):
+                    out[n][k] = out[n][k] / num
+            return out
+        elif isinstance(num, Seq):
+            out = []
+            for n in range(len(self)):
+                out.append(self[n] / num)
+            return Block(val=out)
+        else:
+            raise ValueError("Incompatible type; must be int or Seq")
 
     def append(self, line: Seq):
         """
