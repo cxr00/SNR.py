@@ -218,3 +218,19 @@ def block_product_mean_test():
 
     print((bc + cb) / 2)
 
+
+def block_product_distributivity_test():
+    b = Block.power(random_seq())
+    c = Block.power(random_seq())
+    d = Block.power(random_seq())
+
+    print("Distributivity test of multiplication from the left")
+    form_1 = b * (c + d)
+    form_2 = b * c + b * d
+    print(form_1 == form_2)
+
+    print("Distributivity test of multiplication from the right")
+    form_1 = (b + c) * d
+    form_2 = b * d + c * d
+    print(form_1 == form_2)
+
