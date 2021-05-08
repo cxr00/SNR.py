@@ -178,38 +178,17 @@ def seq_and_block_module_axioms_test():
     print("Distributivity of scalar multiplication over block addition")
     temp1 = (b + c) * d
     temp2 = b*d + c*d
-    test_passed = True
-    for n in range(max(len(temp1), len(temp2))):
-        if temp1[n] != temp2[n]:
-            test_passed = False
-            print("Test failed")
-            break
-    if test_passed:
-        print("Test passed")
+    print(temp1 == temp2)
 
     print("Distributivity of scalar multiplication over scalar addition")
     temp1 = b * (d + g)
     temp2 = b*d + b*g
-    test_passed = True
-    for n in range(max(len(temp1), len(temp2))):
-        if temp1[n] != temp2[n]:
-            test_passed = False
-            print("Test failed")
-            break
-    if test_passed:
-        print("Test passed")
+    print(temp1 == temp2)
 
     print("Associativity of scalar multiplication")
     temp1 = b * (d*g)
     temp2 = (b * d) * g
-    test_passed = True
-    for n in range(max(len(temp1), len(temp2))):
-        if temp1[n] != temp2[n]:
-            test_passed = False
-            print("Test failed")
-            break
-    if test_passed:
-        print("Test passed")
+    print(temp1 == temp2)
 
 
 def block_product_identity_test():
