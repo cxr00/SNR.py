@@ -380,7 +380,7 @@ print(b * a)
 843, 2645, 3630, 2650, 1015, 161
 ```
 
-A Block may also be multiplied by a Seq object on the right.
+A Block may also be multiplied by a Seq object.
 
 ```python
 a = Seq([1, 1])
