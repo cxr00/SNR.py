@@ -6,6 +6,10 @@ def random_seq():
     return Seq([random.randint(1, 4) for k in range(random.randint(2, 4))])
 
 
+def identity(a, b):
+    return sum([a[k]*b**k for k in range(max(len(a), len(b)))])
+
+
 def block_multiplication_test_1(a, b, l=std_l):
 
     # A nifty identity for signatures after block multiplication
@@ -73,13 +77,7 @@ def block_multiplication_test_3():
     a_bc = a * (b * c)
     ab_c = (a * b) * c
 
-    assoc_passed = True
-    for n in range(std_l):
-        if a_bc[n] != ab_c[n]:
-            print("Associativity failed")
-            assoc_passed = False
-            break
-
+    assoc_passed = a_bc == ab_c
     if assoc_passed:
         print("Associativity passed")
 
@@ -233,4 +231,126 @@ def block_product_distributivity_test():
     form_1 = (b + c) * d
     form_2 = b * d + c * d
     print(form_1 == form_2)
+
+
+def block_product_with_zero():
+    # Showcases annihilation on the left
+    # Likely because of the use of 0^0 = 1, 0 does not annihilate from the right
+    a = random_seq()
+    b = Seq(0)
+
+    b_a = Block.power(a)
+    b_b = Block.power(b)
+
+    print(f"0 * {a} == 0:", (b_b * b_a) == b_b)
+    print(f"{a} * 0 == a_0", (b_a * b_b) == Block.power(Seq(a[0])) )
+
+
+def power_triangle_monoid_test_1():
+    # Just wanted to see if anything interesting appeared, no dice
+    a = Seq([1, 1, 1])
+    b = Seq([1, 1]).f(l=15) * x
+
+    print(identity(a, b))
+    print(identity(a, b).i())
+
+    print(identity(b, a))
+
+
+def tester():
+    # A demonstration that this operation does not have unique factorization
+    a = Block.power(Seq([1, 1, 1]))
+    b = Block.power(Seq([2, 1]))
+
+    first = (a * b).val[:15]
+    print(Block(first))
+    print()
+
+    a = Block.power(Seq([3, 3, 1]))
+    b = Block.power(Seq([1, 1]))
+
+    second = (a * b).val[:15]
+    print(Block(second))
+    print(first == second)
+
+
+def tester_2():
+    # For experimenting with multiplication of multiples of x
+    b = Block.power(Seq([1, 1, 1, 1]))
+    a = Block.power(Seq([1, 1, 1]) * x)
+
+    print((b * a)[1])
+    print((a * b)[1])
+
+
+def right_distributivity_test():
+    # One of the axioms to form a right near ring
+    a = random_seq()
+    b = random_seq()
+    c = random_seq()
+
+    print(a, "///", b, "///", c)
+    d = identity(a + b, c)
+    e = identity(a, c) + identity(b, c)
+    print(d == e)
+
+
+def right_and_left_near_ring_identity():
+    a = random_seq()
+    b = random_seq()
+
+    identity_1 = identity(a, b*x)
+    identity_2 = Seq(Sig(b) * Sig(a)) / b
+
+    print(identity_1)
+    print(identity_2)
+    print(identity_1 == identity_2)
+
+
+def scalar_multiplication_compatibility_test():
+    # Fails compatibility test
+    a = Seq([1, 1])
+    b = Seq([1, 1])
+
+    d = 2
+    g = 2
+
+    identity_1 = identity(d*a, g*b)
+    identity_2 = d*g * identity(a, b)
+
+    print(identity_1)
+    print(identity_2)
+    print(identity_1 == identity_2)
+
+
+def scalar_multiplication_compatibility_test_2():
+    # Fails compatibility test
+    a = Block.power(Seq([1, 1]))
+    b = Block.power(Seq([1, 1]))
+
+    d = Seq([1, 1])
+    g = Seq([1, 1])
+
+    identity_1 = d*a * g*b
+    identity_2 = (d*g) * (a*b)
+
+    print(identity_1)
+    print(identity_2)
+    print(identity_1 == identity_2)
+
+
+def algebra_axiom_test():
+    # Fails the test
+    a = Seq([1, 1])
+    b = Seq([1, 1])
+
+    d = 2
+    g = 1.5
+
+    identity_1 = Sig(d * a) * Sig(g * b)
+    identity_2 = d*g * Seq((Sig(a) * Sig(b)))
+
+    print(identity_1)
+    print(identity_2)
+    print(identity_1 == identity_2)
 
