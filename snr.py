@@ -292,7 +292,7 @@ class Seq:
         :return: the sequence without trailing zeroes
         """
         out = copy.deepcopy(self.val)
-        while out[len(out)-1] == 0 and len(out) > 0:
+        while len(out) > 0 and out[len(out)-1] == 0:
             out.pop(len(out)-1)
             if len(out) == 0:
                 break
@@ -635,8 +635,10 @@ class Block:
 
     def __eq__(self, other):
         if not isinstance(other, Block):
-            raise ValueError(f"Unsupported type {type(other)}; must be Block")
-        for n in range(max(len(self), len(other))):
+            return False
+        if len(self) != len(other):
+            return False
+        for n in range(len(self)):
             if self[n] != other[n]:
                 return False
         return True
@@ -659,12 +661,15 @@ class Block:
     def __mul__(self, other):
         if isinstance(other, (Seq, int, float)):
             return Block([other*g for g in self])
+        elif isinstance(other, Sig):
+            return Block([Seq(Sig(g)*other) for g in self])
         elif isinstance(other, Block):
             width = max(self.width, other.width)
-            out = Block([Seq([0 for k in range(width)]) for x in range(max(self.l, other.l))])
-            for x in range(width):
+            length = max(self.l, other.l)
+            out = Block([Seq([0 for k in range(width)]) for n in range(length)])
+            for n in range(length):
                 for y in range(width):
-                    out[x][y] = sum([self[x][k] * other[k][y] for k in range(self.width)])
+                    out[n][y] = sum([self[n][k] * other[k][y] for k in range(len(self[n]))])
             return out.trim()
         else:
             raise ValueError("Incompatible type; must be int, float, Seq, or Block")
