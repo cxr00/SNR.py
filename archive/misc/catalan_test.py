@@ -76,7 +76,7 @@ def catalan_triangle():
     """
     a = 2
     b = Block.blank(std_l)
-    g = 2
+    g = 1
 
     b[0] = Seq([1 for k in range(g)])
 
@@ -93,6 +93,7 @@ def catalan_triangle():
     print(b.f(a=a))
     print(b.i(a=a))
 
+    # An identity for the signature function of the Catalan triangle (ie g = 1)
     print(1 + x ** a * catalan_convolution(1).aerate(a + 1))
 
 
