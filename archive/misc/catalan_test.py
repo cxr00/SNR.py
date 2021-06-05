@@ -70,19 +70,23 @@ def catalan_triangle():
 
     Regardless of the aeration coefficient, the Catalan numbers are
     present in the signature through a neat identity
+
+    The coefficient g generalizes the construction to Catalan's trapezoid
+    Where g = 1 produces Catalan's triangle
     """
     a = 2
     b = Block.blank(std_l)
+    g = 2
 
-    b[0][0] = 1
+    b[0] = Seq([1 for k in range(g)])
 
     for n in range(1, std_l):
         for k in range(std_l):
             if k == 0:
                 b[n][k] = 1
             elif k == 1:
-                b[n][k] = n
-            elif 1 < k < n + 1:
+                b[n][k] = n + (1 if g > 1 else 0)
+            elif 1 < k < n + g:
                 b[n][k] = b[n][k-1] + b[n-1][k]
 
     print(b)
@@ -91,3 +95,5 @@ def catalan_triangle():
 
     print(1 + x ** a * catalan_convolution(1).aerate(a + 1))
 
+
+catalan_triangle()
