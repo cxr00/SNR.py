@@ -96,5 +96,3 @@ def catalan_triangle():
     # An identity for the signature function of the Catalan triangle (ie g = 1)
     print(1 + x ** a * catalan_convolution(1).aerate(a + 1))
 
-
-catalan_triangle()
