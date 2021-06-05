@@ -425,6 +425,9 @@ class Sig:
     def __rsub__(self, o):
         return o - self
 
+    def __setitem__(self, key: int, value: (int, float)):
+        self.val[key] = value
+
     @check_sig
     def __sub__(self, o):
         return Sig((self.val - o.val) * o.f())
@@ -690,6 +693,10 @@ class Block:
         for e in self:
             out += str(e) + "\n"
         return out
+
+    def __setitem__(self, key: int, value: Seq):
+        if len(self) > key >= 0:
+            self.val[key] = value
 
     def __sub__(self, other):
         return (self + other.neg()).trim()
