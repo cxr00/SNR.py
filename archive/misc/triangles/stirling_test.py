@@ -32,3 +32,7 @@ def stirling_second_kind():
     print(ss_f)
     print(ss_f.i())
 
+
+stirling_first_kind()
+print()
+stirling_second_kind()
