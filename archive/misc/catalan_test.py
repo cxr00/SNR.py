@@ -7,7 +7,7 @@ def catalan_convolution(j):
     def generate_cantor_numbers(l):
         out = Seq(1)
         for n in range(l):
-            out = out.f()
+            out = out.f(l=n+1)
         return out
 
     out = []
@@ -19,7 +19,7 @@ def catalan_convolution(j):
     return Seq(out)
 
 
-def triangle_construction():
+def triangle_construction(j=1, a=1):
     """
     A construction from Zeddar which produces interesting signatures
 
@@ -29,8 +29,6 @@ def triangle_construction():
 
     When using the aerated signature function, another identity emerges as will be discussed in future writings
     """
-    j = 1
-    a = 1
 
     # Start with a block full of zeroes
     p = Block.blank(l=std_l)
@@ -50,21 +48,17 @@ def triangle_construction():
 
     print(p)
 
-    p_f = p.f(a=a)
-    p_i = p_f.i()
-    print(p_f)  # Signature function of the block
-    print(p_i)  # Inverse signature function of the block
+    p_f = p.f(a=a)  # Signature function of the block
+    p_i = p_f.i()  # Inverse signature function of the block
+    print(p_f)
+    print(p_i)
     print()
 
-    # s = p_f[::2]
-    #
-    # print(s)
-    # print(s.i())
-
+    # Closed form identity for p_i
     print(x * catalan_convolution(j).aerate(2) + x ** a)
 
 
-def catalan_triangle():
+def catalan_triangle(a=1, g=1):
     """
     Performs the signature function on the Catalan triangle
 
@@ -74,9 +68,7 @@ def catalan_triangle():
     The coefficient g generalizes the construction to Catalan's trapezoid
     Where g = 1 produces Catalan's triangle
     """
-    a = 2
     b = Block.blank(std_l)
-    g = 1
 
     b[0] = Seq([1 for k in range(g)])
 
