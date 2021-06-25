@@ -82,8 +82,10 @@ def catalan_triangle(a=1, g=1):
                 b[n][k] = b[n][k-1] + b[n-1][k]
 
     print(b)
-    print(b.f(a=a))
-    print(b.i(a=a))
+
+    b_f = b.f(a=a)
+    print(b_f)
+    print(b_f.i())
 
     # An identity for the signature function of the Catalan triangle (ie g = 1)
     print(1 + x ** a * catalan_convolution(1).aerate(a + 1))
