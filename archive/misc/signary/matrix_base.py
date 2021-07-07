@@ -1,24 +1,30 @@
 from snr import *
 
 
-# The original, uses a power triangle as the base
-# This function computes the "powers" of numbers in this base
-# For example, d=[1,1] produces the Bell numbers
 def counting_test_1(d, l=10):
+    """
+    The original matrix base interpretation using a power triangle.
+    This function computes the n-th powers of numbers in this base
+    For example, d={1,1} produces the Bell numbers.
+    """
     base = Block.power(d, l=l)
 
     out = [1]
 
-    for n in range(l):
+    for n in range(1, l):
         g = 0
-        for e in range(n+1):
-            g += out[e] * base[n][e]
+        for k in range(n):
+            g += out[k] * base[n-1][k]
         out.append(g)
 
     return Seq(out)
 
 
 def counting_test_2(d, l=10):
+    """
+    Matrix base interpretation when M(n, k) = F_d(n-k). This is
+    identical to using F_d as a base.
+    """
     base = Block.blank(l)
     d_f = d.f(l=l)
 
@@ -30,18 +36,11 @@ def counting_test_2(d, l=10):
 
     out = [1]
 
-    for n in range(l):
+    for n in range(1, l):
         g = 0
-        for e in range(n+1):
-            g += out[e] * base[n][e]
+        for k in range(n):
+            g += out[k] * base[n-1][k]
         out.append(g)
 
     return Seq(out)
 
-
-d = Seq([1])
-
-s = counting_test_2(d)
-
-print(s)
-print(s.i())
