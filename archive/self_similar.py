@@ -1,9 +1,29 @@
 from snr import *
+import random
 
 std_l = 70
 
 
+def bar(s: Seq):
+    """
+    Transforms sequences such as {1, 1, 1, 1, 1, 1}
+    into {-1, 1, -1, 1, -1, 1}
+    """
+    return Seq([(-1)**(k+1) * s[k] for k in range(len(s))])
+
+
+def double_bar(s: Seq):
+    """
+    Transforms sequences such as {1, 1, 1, 1, 1, 1}
+    into {1, -1, 1, -1, 1, -1}
+    """
+    return Seq([(-1)**k * s[k] for k in range(len(s))])
+
+
 def catalan_numbers(l=std_l):
+    """
+    Generates the first l Catalan numbers
+    """
     out = Seq(1)
 
     for n in range(1, l):
@@ -26,8 +46,12 @@ def self_sim_iter(t=1, g: int = 1, p: int = 0, r: int = -1, l: int =std_l):
 
 
 def count_unique_self_similar_signatures():
-    t_max = 1
-    g_max = 30
+    """
+    Produces a matrix counting the number of unique self-similar
+    signatures at (t >= 0, g >= 1)
+    """
+    t_max = 10
+    g_max = 10
     std_l = 30
 
     list_of_all_uniques = []
@@ -45,18 +69,11 @@ def count_unique_self_similar_signatures():
                     if s not in list_of_all_uniques:
                         unique.append(s)
                         list_of_all_uniques.append(s)
-                        # print(d)
-                        # print(d.f(std_l))
-                    # print()
 
             print()
             all_uniques[t][g-1] = len(unique)
 
-    print(all_uniques)
-
-
-def bar(s: Seq):
-    return Seq([(-1)**(k+1) * s[k] for k in range(len(s))])
+    return all_uniques
 
 
 def check_sequences_0(g: int):
@@ -100,3 +117,28 @@ def check_sequences_0(g: int):
         b_alt = b_alt[:std_l]
 
         print(g, a == a_alt and b == b_alt)
+
+
+def self_similar_negative_t():
+    """
+    An identity of the self-similar function for negative vs. positive t
+
+    Note that g must always be 1.
+    """
+    t = random.randint(1, 6)
+    g = 1
+    p = random.randint(0, 1)
+    r = [-1, 1][random.randint(0, 1)]
+
+    l = 50
+
+    d_neg = self_sim_iter(-t, g, p, r, l=l)
+    print(d_neg)
+    print(d_neg.f(l=l))
+
+    d = self_sim_iter(t, g, p, r, l=l)
+    print(d)
+    print(d.f(l=l))
+
+    print(d_neg == bar(d))
+
