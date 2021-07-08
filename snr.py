@@ -796,6 +796,9 @@ class Cube:
         """
         A striking one-beginning cube with very
         signature-addition-like properties.
+
+        This is a core one-beginning cube, with by far the
+        most interesting signature generation
         """
 
         def generate_trapezoid(d: Seq, g: Seq):
@@ -819,6 +822,8 @@ class Cube:
         """
         A triangular prism where each Block is the
         signature's corresponding power triangle
+
+        This is a core one-beginning cube, and f_{cube} = Sig(d) + Sig(1)
         """
         return Cube([Block.power(d, l) for k in range(l)])
 
@@ -826,7 +831,9 @@ class Cube:
     def sen(d: Seq, l=std_l):
         """
         A triangular prism where each Block in the Cube is
-        the signature's corresponding Sen triangle
+        the signature's corresponding Sen triangle.
+
+        This is a core one-beginning cube
         """
         s = Block.sen(d, l)
 
