@@ -764,3 +764,124 @@ class Block:
     def neg(self):
         out = [v.neg() for v in self]
         return Block(out)
+
+
+class Cube:
+
+    @staticmethod
+    def blank(l=std_l):
+        """
+        A cube where each element is zero. Useful for scaffolding
+        """
+        return Cube([Block.blank(l) for k in range(l)])
+
+    @staticmethod
+    def power(d: Seq, l=std_l):
+        """
+        The canonical one-beginning cube. This produces a
+        natural identity F_{cube} = F_{Sig(d) + Sig(d)}
+
+        This can be generalized to higher dimensions
+        """
+        cube = Cube.blank(l)
+        b_d = Block.power(d, l)
+
+        for n in range(l):
+            cube[n] = d ** n * b_d
+
+        return cube
+
+    @staticmethod
+    def power_trapezoid(d: Seq):
+        """
+        A striking one-beginning cube with very
+        signature-addition-like properties.
+        """
+
+        def generate_trapezoid(d: Seq, g: Seq):
+            b = Block.blank(std_l)
+            b[0] = g
+            for n in range(1, std_l):
+                b[n] = b[n - 1] * d
+
+            return b
+
+        cube = Cube.blank(std_l)
+
+        for n in range(std_l):
+            g = Seq([1 for k in range(n + 1)])
+            cube[n] = generate_trapezoid(d, g)
+
+        return cube
+
+    @staticmethod
+    def power_triangular_prism(d: Seq, l=std_l):
+        """
+        A triangular prism where each Block is the
+        signature's corresponding power triangle
+        """
+        return Cube([Block.power(d, l) for k in range(l)])
+
+    @staticmethod
+    def sen(d: Seq, l=std_l):
+        """
+        A triangular prism where each Block in the Cube is
+        the signature's corresponding Sen triangle
+        """
+        s = Block.sen(d, l)
+
+        cube = Cube([s for k in range(l)])
+
+        return cube
+
+    def __init__(self, val=None):
+        if not val:
+            self.val = [Block.blank(std_l)]
+        else:
+            self.val = []
+            for each in val:
+                if not isinstance(each, Block):
+                    raise ValueError(f"Incompatible type {type(each)}; must be Block")
+                else:
+                    self.val.append(each)
+
+    def __getitem__(self, i):
+        if isinstance(i, int):
+            return self.val[i] if len(self) > i >= 0 else Seq(0)
+        elif isinstance(i, slice):
+            start = i.start if i.start else 0
+            stop = i.stop if i.stop else len(self)
+            step = i.step if i.step else 1
+            return Block([self.val[k] if len(self) > k >= 0 else 0 for k in range(start, stop, step)])
+
+    def __len__(self):
+        return len(self.val)
+
+    def __setitem__(self, key: int, value: Block):
+        if len(self) > key >= 0:
+            self.val[key] = value
+
+    def f(self):
+        """
+        The signature function generalized to three dimensions
+        """
+        out = Seq()
+
+        for n in range(len(self)):
+            _sum = 0
+            for y in range(n + 1):
+                for t in range(n + 1):
+                    for p in range(n + 1):
+                        if y + t + p == n:
+                            _sum += self[y][t][p]
+            out.append(_sum)
+
+        return out
+
+    def i(self):
+        return self.f().i()
+
+    def print(self):
+        for block in self.val:
+            print(block)
+        print()
