@@ -765,6 +765,10 @@ class Block:
         out = [v.neg() for v in self]
         return Block(out)
 
+    def truncate(self, l):
+        out = Block([s[:l] for s in self])
+        return out
+
 
 class Cube:
 
@@ -784,7 +788,7 @@ class Cube:
         This can be generalized to higher dimensions
         """
         cube = Cube.blank(l)
-        b_d = Block.power(d, l)
+        b_d = Block.power(d, l).truncate(l)
 
         for n in range(l):
             cube[n] = d ** n * b_d
@@ -828,6 +832,13 @@ class Cube:
         return Cube([Block.power(d, l) for k in range(l)])
 
     @staticmethod
+    def prism(b: Block, l=std_l):
+        """
+        A triangular prism where T_b (n, y, t) = T_b (n+1, y, t)
+        """
+        return Cube([b for k in range(l)])
+
+    @staticmethod
     def sen(d: Seq, l=std_l):
         """
         A triangular prism where each Block in the Cube is
@@ -868,7 +879,7 @@ class Cube:
         if len(self) > key >= 0:
             self.val[key] = value
 
-    def f(self):
+    def f(self, inclusive=False):
         """
         The signature function generalized to three dimensions
         """
@@ -879,14 +890,18 @@ class Cube:
             for y in range(n + 1):
                 for t in range(n + 1):
                     for p in range(n + 1):
-                        if y + t + p == n:
-                            _sum += self[y][t][p]
+                        if inclusive:
+                            if y + t + p <= n:
+                                _sum += self[y][t][p]
+                        else:
+                            if y + t + p == n:
+                                _sum += self[y][t][p]
             out.append(_sum)
 
         return out
 
-    def i(self):
-        return self.f().i()
+    def i(self, inclusive=False):
+        return self.f(inclusive=inclusive).i()
 
     def print(self):
         for block in self.val:
