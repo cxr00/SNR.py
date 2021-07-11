@@ -27,6 +27,26 @@ def generalized_inclusive_sig_identity(N, d):
     return out
 
 
+def alternate_generalized_inclusive_sig_identity(N, d):
+    """
+    The power triangular prism generalized inclusive signature function (GISF)
+
+    :param N: The dimension of the power N-tangular prism
+    :param d: The signature of the prism
+    :return: The constructed GISF
+    """
+    assert N > 0
+    out = Seq()
+
+    binom = Seq([1, 1])**(N-1)
+
+    for k in range(N):
+        to_add = (-1)**k * (binom[k]*d + binom[k+1]) * x**k
+        out += to_add
+
+    return out
+
+
 def hypercube_signature_function(hypercube, l=10, inclusive=False):
     """
     The signature function generalized to four dimensions.
@@ -118,10 +138,7 @@ def hypercube_unit_test_2():
 
 def tesseract_signature_function(tesseract, l=10, inclusive=False):
     """
-    The signature function generalized to four dimensions.
-
-    This process is trivially extended to higher dimensions
-    using the pattern given below.
+    The signature function generalized to five dimensions.
     """
     out = Seq()
 
@@ -145,8 +162,8 @@ def tesseract_signature_function(tesseract, l=10, inclusive=False):
 
 def one_beginning_tesseract(d: Seq, l=std_l // 3):
     """
-    A generalization of the power triangle to 4 dimensions.
-    This is the canonical one-beginning object in 4 dimensions
+    A generalization of the power triangle to 5 dimensions.
+    This is the canonical one-beginning object in 5 dimensions
     """
     tesseract = [[Cube.blank(l) for n in range(l)] for k in range(l)]
     b_d = Block.power(d).truncate(l)
@@ -158,6 +175,62 @@ def one_beginning_tesseract(d: Seq, l=std_l // 3):
                 tesseract[n][y][t] = d ** (n + y + t) * b_d
 
     return tesseract
+
+
+def six_dimensional_signature_function(sixdim, l=10, inclusive=False):
+    """
+    The signature function generalized to six dimensions.
+    """
+    out = Seq()
+
+    for n in range(l):
+        _sum = 0
+        for y in range(n + 1):
+            for t in range(n + 1):
+                for p in range(n + 1):
+                    for j in range(n + 1):
+                        for k in range(n + 1):
+                            for i in range(n + 1):
+                                if inclusive:
+                                    if y + t + p + j + k + i <= n:
+                                        _sum += sixdim[y][t][p][j][k][i]
+                                else:
+                                    if y + t + p + j + k + i == n:
+                                        _sum += sixdim[y][t][p][j][k][i]
+        out.append(_sum)
+
+    return out
+
+
+def one_beginning_six_dimensional_figure():
+    """
+    This is REALLY slow. But the two generalized signature identities
+    still (appear to) hold.
+    """
+    l = 10
+    d = Seq([1, -1])
+
+    sixdim = [[[Cube.blank(l) for k in range(l)] for y in range(l)] for n in range(l)]
+
+    b_d = Block.power(d).truncate(l)
+
+    for n in range(l):
+        for y in range(l):
+            for t in range(l):
+                for k in range(l):
+                    sixdim[n][y][t][k] = d ** (n + y + t + k) * b_d
+            print(f"completed {n} {y}")
+
+    f = six_dimensional_signature_function(sixdim, l, inclusive=False)
+    print(f)
+    print(f.i())
+    print(Sig(d) + Sig(d) + Sig(d) + Sig(d) + Sig(d))
+    print()
+
+    f = six_dimensional_signature_function(sixdim, l, inclusive=True)
+    print(f)
+    print(f.i())
+    print(generalized_inclusive_sig_identity(6, d))
 
 
 def tesseract_unit_test():
@@ -181,26 +254,29 @@ def tesseract_unit_test():
 
 
 def hypercube_triangular_prism():
-
-    def cool_identity(N, d):
-        out = Seq()
-
-        binom = Seq([1, 1]) ** (N-1)
-
-        for k in range(N):
-            out += (binom[k]*d + binom[k+1])*(x**k)*(-1)**k
-
-        return out
-
     l = 12
     for b in range(10):
         d = random_seq()
-        hypercube = [Cube.power_triangular_prism(d, l) for k in range(l)]
+        cube = Cube.power_triangular_prism(d, l)
+        hypercube = [cube for k in range(l)]
 
         h_f = hypercube_signature_function(hypercube, l, inclusive=True)
-        # print(h_f)
         print(h_f.i())
-        print(cool_identity(4, d))
+        print(alternate_generalized_inclusive_sig_identity(4, d))
+        print()
+
+
+def tesseract_triangular_prism():
+    l=12
+    for b in range(10):
+        d = Seq(b)
+        cube = Cube.power_triangular_prism(d, l)
+
+        tesseract = [[cube for k in range(l)] for n in range(l)]
+
+        t_f = tesseract_signature_function(tesseract, l, inclusive=True)
+        print(t_f.i())
+        print(alternate_generalized_inclusive_sig_identity(5, d))
         print()
 
 
