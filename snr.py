@@ -766,7 +766,7 @@ class Block:
         return Block(out)
 
     def truncate(self, l):
-        out = Block([s[:l] for s in self])
+        out = Block([s[:l] for s in self.val[:l]])
         return out
 
 
@@ -796,7 +796,7 @@ class Cube:
         return cube
 
     @staticmethod
-    def power_trapezoid(d: Seq):
+    def power_trapezoid(d: Seq, g: Seq = Seq(1)):
         """
         A striking one-beginning cube with very
         signature-addition-like properties.
@@ -814,10 +814,11 @@ class Cube:
             return b
 
         cube = Cube.blank(std_l)
+        g = g.f(l=std_l)
 
         for n in range(std_l):
-            g = Seq([1 for k in range(n + 1)])
-            cube[n] = generate_trapezoid(d, g)
+            # g = Seq([1 for k in range(n + 1)])
+            cube[n] = generate_trapezoid(d, g[:n+1])
 
         return cube
 
