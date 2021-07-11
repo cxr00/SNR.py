@@ -476,6 +476,18 @@ class Sig:
         """
         return Sig(self.val.i())
 
+    def iter_add(self, n):
+        if n == 0:
+            return Sig(0)
+        elif n == 1:
+            return self
+        else:
+            d = Sig(self.val)
+            out = d
+            for k in range(1, n+1):
+                out += d
+            return out
+
     def neg(self):
         """
         Converts the given sequence to its additive inverse
@@ -880,7 +892,7 @@ class Cube:
         if len(self) > key >= 0:
             self.val[key] = value
 
-    def f(self, inclusive=False):
+    def f(self):
         """
         The signature function generalized to three dimensions
         """
@@ -891,18 +903,14 @@ class Cube:
             for y in range(n + 1):
                 for t in range(n + 1):
                     for p in range(n + 1):
-                        if inclusive:
-                            if y + t + p <= n:
-                                _sum += self[y][t][p]
-                        else:
-                            if y + t + p == n:
-                                _sum += self[y][t][p]
+                        if y + t + p == n:
+                            _sum += self[y][t][p]
             out.append(_sum)
 
         return out
 
-    def i(self, inclusive=False):
-        return self.f(inclusive=inclusive).i()
+    def i(self):
+        return self.f().i()
 
     def print(self):
         for block in self.val:
