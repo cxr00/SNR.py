@@ -255,16 +255,24 @@ def tesseract_unit_test():
 
 def hypercube_triangular_prism():
     l = 12
-    for b in range(10):
-        d = random_seq()
-        cube = Cube.power_triangular_prism(d, l)
-        hypercube = [cube for k in range(l)]
+    # for b in range(10):
+    d = Seq([1, 1])
+    cube = Cube.power_triangular_prism(d, l)
+    hypercube = [cube for k in range(l)]
 
-        h_f = hypercube_signature_function(hypercube, l, inclusive=True)
-        print(h_f.i())
-        print(alternate_generalized_inclusive_sig_identity(4, d))
-        print()
+    h_f = hypercube_signature_function(hypercube, l, inclusive=True)
+    print(h_f)
+    print(h_f.i())
+    print(alternate_generalized_inclusive_sig_identity(4, d))
+    print()
 
+    h_f = hypercube_signature_function(hypercube, l, inclusive=False)
+    print(h_f)
+    print(h_f.i())
+    print(Sig(d) + Sig(1) + Sig(1))
+    print()
+
+hypercube_triangular_prism()
 
 def tesseract_triangular_prism():
     l=12
@@ -325,3 +333,68 @@ def hypercube_alt_power_trapezoid():
         print(b, "\t", hc_f)
         print(b, "\t", hc_f.i())
 
+
+
+
+def inclusive_sig_identity_block():
+    """
+    An interesting block constructed using the generalized inclusive
+    signature function (GISF)
+    """
+    d = Seq([1, 1])
+    b = Block([generalized_inclusive_sig_identity(N, d) for N in range(1, 30)])
+    print(b)
+    print(b.f())
+    print(b.f().i())
+
+
+def inclusive_sig_identity_block_2():
+    """
+    An interesting block using the alternate GISF
+    """
+    d = Seq([1])
+
+    b = Block([alternate_generalized_inclusive_sig_identity(N, d) for N in range(1, 30)])
+    print(b)
+    print(b.f())
+    print(b.i())
+
+
+def sen_inclusive_signature_function():
+    l = 20
+    for b in range(10):
+        d = Seq(b)
+        s = Cube.sen(d, l)
+        print(s.f(inclusive=True))
+        print(s.i(inclusive=True))
+
+        print(s.f(inclusive=False))
+        print(s.i(inclusive=False))
+        print()
+
+
+def power_triangular_prism_inclusive():
+    l = 20
+    for b in range(10):
+        d = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
+        c_d = Cube.power_triangular_prism(d, l)
+
+        print(c_d.f(inclusive=True))
+        print(c_d.i(inclusive=True))
+
+        alt = (d + 2) - (2*d + 1)*x + d*x**2
+        print(alt)
+        print()
+
+
+def power_trapezoid_inclusive():
+    l = 20
+    for b in range(10):
+        d = Seq([random.randint(1, 5) for k in range(random.randint(2, 5))])
+        c_d = Cube.power_trapezoid(d)
+
+        print(d)
+        print(c_d.i(inclusive=True))
+        alt = (d+2) - (2*d + 2*x)*x + (2*d + 1)*x**3 - d*x**4
+        print(alt)
+        print()
