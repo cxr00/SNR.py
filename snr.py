@@ -829,7 +829,6 @@ class Cube:
         g = g.f(l=std_l)
 
         for n in range(std_l):
-            # g = Seq([1 for k in range(n + 1)])
             cube[n] = generate_trapezoid(d, g[:n+1])
 
         return cube
